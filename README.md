@@ -1,80 +1,82 @@
-# Ruby for Beginners: Interactive Learning Platform
+# 💎 Interactive Ruby & Ruby on Rails Developer Platform
 
-Welcome to the **Ruby for Beginners** interactive learning platform! This self-contained, single-page web application is designed in a **FreeCodeCamp-style layout** to teach Ruby foundations directly from the browser. It features 10 syllabus chapters, 50 coding challenges with real-time test validation, inline quizzes, and a stateful in-browser Ruby IRB REPL terminal emulator.
+A high-performance, 100% in-browser interactive learning platform designed to take students from complete programming beginners to full-stack Ruby on Rails developers.
+
+The platform boots a real **CRuby 3.3 VM inside WebAssembly (via `ruby.wasm`)** and features a simulated full-stack Rails MVC suite, in-memory database, background worker dashboard, and an email sandbox inbox.
 
 ---
 
 ## 🚀 Key Features
 
-* **Complete 50-Step Curriculum:** 10 syllabus lessons grouped into 5 exercises each (from outputting basics with `puts` to class inheritance in OOP).
-* **Live IRB Shell:** An interactive Ruby terminal REPL that preserves variable state, function bindings, and expressions across commands.
-* **Instant Code Validator:** Real-time syntax and test output checking against exercise rules using a sandboxed browser execution environment.
-* **LMS Progress Tracking:** Inline knowledge check quizzes for reinforcement, dynamic progress metrics, and progress persistence using `localStorage`.
-* **Completion Certificate:** Awarded automatically as a printable modal dialog upon finishing all 50 challenges.
+*   **Native WebAssembly Ruby 3.3 Engine:** Code runs in a real Ruby VM, enabling full support for exceptions, blocks, Lambdas, refinements, and metaprogramming.
+*   **ActiveRecord & Database Simulator:** Live database table inspector updating dynamically as students execute `Post.create` or write ActiveRecord relationships.
+*   **Rails Request-Response Visualizer:** Simulates an HTTP Router and MVC dispatch cycle. Enter URLs in the address bar to watch requests route through controller actions to ERB templates.
+*   **ActiveJob Queue Dashboard:** A simulated worker queue displaying deferred jobs enqueued via `WelcomeJob.perform_later`.
+*   **ActionMailer Mailbox:** An integrated mailbox tab that catches outgoing emails in real-time, displaying raw formatting and metadata.
+*   **Mock File System:** A simulated, in-memory file sandbox enabling file I/O operations (`File.read`, `File.write`, `Dir.glob`) without browser permission blocks.
+*   **Built-in RSpec Runner:** Natively executes BDD test specifications to validate students' solutions with clean example feedback.
 
 ---
 
-## 🛠️ Technology Stack
+## 📚 Curriculum Structure (30 Modules, 168 Steps)
 
-1. **Frontend:** Pure HTML5 structure & Vanilla ES6 JavaScript logic.
-2. **Icons:** FontAwesome 6 icons.
-3. **Styling:** Tailwind CSS v3 (configured locally and compiled via Tailwind CLI).
-4. **Local Server:** Ruby's built-in `webrick` server runner.
+The curriculum is modularly divided across three separate data files under the `src/` directory to maintain light load footprints:
 
----
+### 1. Ruby Language Foundations (Steps 1–82)
+*   **Modules 1–5:** Variables, Operations, Control Flow, and Collection Types (Arrays & Hashes).
+*   **Modules 6–9:** Loops, String Manipulation, Methods, and Basic OOP (Classes, Attributes).
+*   **Module 10:** Advanced OOP (Access Modifiers: `private`/`protected`, Constants, and Exception subclasses).
+*   **Modules 11–13:** Blocks, Procs, Lambdas, Exception Handling, File I/O, and Metaprogramming (`send`, `define_method`, `method_missing`).
+*   **🏆 Project Checkpoint (Step 68): Capstone 1 - OO Task Manager CLI**
 
-## 📁 Project Structure
+### 2. Rails MVC Core (Steps 83–138)
+*   **Modules 14–16:** Rails MVC Architecture, Directory Structures, Router Basics, and Controllers callbacks / Strong Parameters.
+*   **Modules 17–19:** Databases, Migrations, Active Record basics, CRUD operations, Scopes, and Table Aggregations.
+*   **Modules 20–22:** Validations, model callbacks, Relationships (`has_many`, `belongs_to`, `has_many :through`), and View ERB Helpers (`form_with`, `yield`).
+*   **🏆 Project Checkpoint (Step 136): Capstone 2 - RESTful Blog API Router & Controller**
 
-```text
-ruby-beginner-platform/
-├── dist/
-│   └── output.css       # Compiled & minified production stylesheet
-├── src/
-│   └── input.css        # Core Tailwind directives
-├── index.html           # Main Single-Page Application (HTML, JS, and CSS)
-├── package.json         # Tailwind devDependencies and scripts
-├── tailwind.config.js   # Local Tailwind theme & color configurations
-└── README.md            # Project documentation
-```
-
----
-
-## 💻 Getting Started
-
-### 1. Prerequisites
-Ensure you have **Ruby** installed (version 3.0+). You'll need `webrick` to run the server. If not already installed, run:
-```bash
-gem install webrick
-```
-
-### 2. Run the Application
-Start the native Ruby static file server:
-```bash
-ruby -run -e httpd . -p 8000
-```
-Open your browser and navigate to **[http://localhost:8000](http://localhost:8000)** to start learning!
+### 3. Advanced Rails & Integrations (Steps 139–168)
+*   **Modules 23–25:** Advanced OOP Metaprogramming (Eigenclasses, Method Lookup chain) and Asset pipelines.
+*   **Modules 26–28:** ActionView components, Mailers, ActiveJob background workers, and Advanced ActiveRecord Joins/Transactions.
+*   **Modules 29–30:** Hotwire (Turbo/Stimulus), Rails Security (XSS protection, CORS whitelisting), Rate Limiting, and containerized deployments.
+*   **🏆 Project Checkpoint (Step 168): Capstone 3 - Full-Stack Social Feed**
 
 ---
 
-## 🎨 Tailwind CSS CSS-in-JS compilation
+## 🏆 Capstone Projects
 
-If you make modifications to the styling in `index.html`, you will need to recompile the Tailwind assets. 
+The course contains **3 milestone capstone projects** verified by automated RSpec suites:
 
-If Node/npm is not in your global system `PATH` but you have it installed under your code editor (e.g. Zed), you can prepend it:
-
-* **Build minified CSS:**
-  ```bash
-  PATH="$HOME/.local/share/zed/node/node-v24.11.0-linux-x64/bin:$PATH" npm run build
-  ```
-* **Watch classes dynamically:**
-  ```bash
-  PATH="$HOME/.local/share/zed/node/node-v24.11.0-linux-x64/bin:$PATH" npm run watch
-  ```
+1.  **Project 1: Command-Line Task Manager:** Builds a object-oriented CLI application testing encapsulation, custom exceptions inheritance, array queries, and state management.
+2.  **Project 2: RESTful Blog API Router & Controller:** Integrates custom REST resource definitions, strong parameters controller whitelists, and mock JSON endpoints.
+3.  **Project 3: Full-Stack Social Feed:** Connects database relationships, model presence validations, enqueuing background welcome emails, and custom routing configurations.
 
 ---
 
-## ⚙️ How the Browser Ruby VM Works
-Because browsers only run JavaScript natively, the platform runs a customized **Ruby-to-JavaScript transpiler** under the hood:
-- **Block-Stack Parser:** Transpiles Ruby's `do ... end` and `{ ... }` blocks into JavaScript ES6 arrow functions.
-- **Stateful IRB Proxy Sandbox:** Executes code within a `with(Proxy)` wrapper block so that assignments (`x = 10`) dynamically bind to a persistent context dictionary.
-- **Prototype Methods:** Extends standard JavaScript types (`Array`, `String`, `Number`, `Object`) with non-enumerable methods to mirror Ruby features (such as `each_with_index`, `uniq`, `compact`, `upcase!`, `reduce`, `select`, etc.) natively in JS.
+## 🛠️ Local Development Setup
+
+### Dependencies
+Ensure you have [Node.js](https://nodejs.org/) installed to build Tailwind CSS.
+
+1.  **Install dependencies:**
+    ```bash
+    npm install
+    ```
+
+2.  **Rebuild Tailwind CSS assets:**
+    ```bash
+    npm run build
+    ```
+
+3.  **Start a local development server:**
+    You can use Python, Ruby, or any static file server:
+    ```bash
+    # Using Ruby
+    ruby -run -e httpd . -p 8000
+
+    # Or using Python
+    python3 -m http.server 8000
+    ```
+
+4.  **Access the application:**
+    Open **[http://localhost:8000](http://localhost:8000)** in your browser.

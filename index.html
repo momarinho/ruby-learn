@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ruby for Beginners: FreeCodeCamp Interactive Platform</title>
+  <title>Ruby & Rails Masterclass: FreeCodeCamp Interactive Platform</title>
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💎</text></svg>">
   <!-- Tailwind CSS Production Build -->
   <link rel="stylesheet" href="dist/output.css">
   <!-- Font Awesome Icons -->
@@ -12,6 +14,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Ruby WASM UMD Script -->
+  <script src="https://cdn.jsdelivr.net/npm/@ruby/wasm-wasi@2.10.1/dist/browser.umd.js"></script>
   <style>
     /* Custom Scrollbar */
     ::-webkit-scrollbar {
@@ -66,9 +70,32 @@
     @keyframes blink {
       50% { opacity: 0; }
     }
+
+    /* Visual MVC Flow animations */
+    .flow-active {
+      background-color: rgba(225, 29, 72, 0.2) !important;
+      border-color: rgba(225, 29, 72, 0.7) !important;
+      color: #f43f5e !important;
+      box-shadow: 0 0 12px rgba(225, 29, 72, 0.3);
+    }
   </style>
 </head>
 <body class="h-full flex flex-col font-sans bg-slate-950 text-slate-100 antialiased overflow-hidden">
+
+  <!-- VM LOADING PROGRESS OVERLAY (Wow Factor Loader) -->
+  <div id="vm-loader-overlay" class="fixed inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex flex-col items-center justify-center space-y-6 transition-all duration-300">
+    <div class="relative w-28 h-28 flex items-center justify-center">
+      <div class="absolute inset-0 rounded-full border-4 border-ruby-500/20 border-t-ruby-500 animate-spin"></div>
+      <i class="fa-solid fa-gem text-5xl text-ruby-500 animate-pulse"></i>
+    </div>
+    <div class="text-center space-y-3">
+      <h3 class="text-lg font-bold text-slate-100 tracking-wide">Bootstrapping Ruby WebAssembly VM</h3>
+      <p id="vm-loader-text" class="text-xs text-slate-400 font-mono">Initializing virtual network...</p>
+      <div class="w-64 bg-slate-900 h-2 rounded-full overflow-hidden border border-slate-800/80 mx-auto mt-4">
+        <div id="vm-loader-bar" class="bg-gradient-to-r from-ruby-600 to-rose-400 h-full w-0 transition-all duration-300"></div>
+      </div>
+    </div>
+  </div>
 
   <!-- TOP GLOBAL HEADER (FreeCodeCamp Style) -->
   <header class="h-14 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-4 shrink-0 z-20">
@@ -82,8 +109,8 @@
         <div class="w-7 h-7 rounded-md bg-ruby-600 flex items-center justify-center text-white shadow-md shadow-ruby-900/50">
           <i class="fa-solid fa-gem text-sm"></i>
         </div>
-        <span class="font-bold text-slate-100 text-sm hidden sm:inline">Ruby for Beginners</span>
-        <span id="current-step-badge" class="text-xs font-mono bg-slate-800 border border-slate-700 text-ruby-400 px-2.5 py-0.5 rounded-full">Step 1 / 50</span>
+        <span class="font-bold text-slate-100 text-sm hidden sm:inline">Ruby & Rails Interactive</span>
+        <span id="current-step-badge" class="text-xs font-mono bg-slate-800 border border-slate-700 text-ruby-400 px-2.5 py-0.5 rounded-full">Step 1 / 168</span>
       </div>
     </div>
 
@@ -116,7 +143,7 @@
     <aside id="curriculum-drawer" class="w-80 bg-slate-900 border-r border-slate-800 flex flex-col shrink-0 transition-all duration-300 absolute inset-y-0 left-0 z-40 lg:relative lg:translate-x-0 -translate-x-full shadow-2xl">
       <div class="p-3.5 border-b border-slate-800 flex items-center justify-between bg-slate-950/50">
         <h2 class="text-xs font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-2">
-          <i class="fa-solid fa-list-check text-ruby-500"></i> Course Modules (50 Steps)
+          <i class="fa-solid fa-list-check text-ruby-500"></i> Course Modules (168 Steps)
         </h2>
         <button id="close-curriculum-btn" class="lg:hidden text-slate-400 hover:text-white p-1">
           <i class="fa-solid fa-xmark"></i>
@@ -125,16 +152,16 @@
 
       <!-- Curriculum Tree View -->
       <nav id="curriculum-tree" class="flex-1 overflow-y-auto p-2 space-y-2">
-        <!-- Rendered via JS: 10 Lessons with 5 sub-exercises each -->
+        <!-- Rendered via JS: 20 Lessons with 5 sub-exercises each -->
       </nav>
 
       <div class="p-3 border-t border-slate-800 bg-slate-950/80 text-[11px] text-slate-400 flex items-center justify-between font-mono">
-        <span><i class="fa-solid fa-terminal text-ruby-400 mr-1"></i> Interactive IRB Engine</span>
-        <span class="text-emerald-400 bg-emerald-950 border border-emerald-800 px-1.5 py-0.5 rounded">v3.4</span>
+        <span><i class="fa-solid fa-terminal text-ruby-400 mr-1"></i> ruby.wasm Engine</span>
+        <span class="text-emerald-400 bg-emerald-950 border border-emerald-800 px-1.5 py-0.5 rounded">v3.3.0</span>
       </div>
     </aside>
 
-    <!-- MAIN FREECODECAMP SPLIT PANES -->
+    <!-- MAIN SPLIT PANES -->
     <div class="flex-1 flex flex-col md:flex-row overflow-hidden w-full">
 
       <!-- LEFT PANE: INSTRUCTIONS & THEORY -->
@@ -165,7 +192,7 @@
 
           <!-- Hint & Solution Buttons -->
           <div class="flex items-center gap-2 pt-2 border-t border-slate-800/80">
-            <button id="toggle-hint-btn" class="text-[11px] text-amber-400 hover:text-amber-300 bg-amber-950/40 hover:bg-amber-900/60 border border-amber-800/60 px-2.5 py-1 rounded transition flex items-center gap-1.5">
+            <button id="toggle-hint-btn" class="text-[11px] text-amber-400 hover:text-amber-300 bg-amber-950/40 hover:bg-amber-900/60 border border-amber-800/60 px-2.5 py-1 transition flex items-center gap-1.5">
               <i class="fa-regular fa-lightbulb"></i> Hint
             </button>
             <button id="toggle-solution-btn" class="text-[11px] text-sky-400 hover:text-sky-300 bg-sky-950/40 hover:bg-sky-900/60 border border-sky-800/60 px-2.5 py-1 rounded transition flex items-center gap-1.5">
@@ -212,18 +239,21 @@
 
       </section>
 
-      <!-- RIGHT PANE: CODE EDITOR & FREECODECAMP TERMINAL CONSOLE -->
+      <!-- RIGHT PANE: CODE EDITOR & TERMINAL / RAILS SIMULATOR -->
       <section class="w-full md:w-1/2 flex flex-col bg-slate-900 overflow-hidden">
         
         <!-- EDITOR TOP CONTROL BAR -->
-        <div class="bg-slate-950 border-b border-slate-800 px-4 py-2 flex items-center justify-between text-xs font-mono">
+        <div class="bg-slate-950 border-b border-slate-800 px-4 py-2 flex items-center justify-between text-xs font-mono shrink-0">
           <!-- Tab Switcher -->
           <div class="flex items-center space-x-1">
             <button id="tab-editor-btn" class="px-3 py-1 rounded-t-md bg-slate-900 text-ruby-400 border-t-2 border-ruby-500 font-semibold flex items-center gap-1.5">
-              <i class="fa-regular fa-file-code"></i> main.rb
+              <i class="fa-regular fa-file-code"></i> <span id="editor-main-tab-label">main.rb</span>
             </button>
             <button id="tab-irb-btn" class="px-3 py-1 rounded-t-md text-slate-400 hover:text-slate-200 transition flex items-center gap-1.5">
               <i class="fa-solid fa-terminal"></i> Live IRB Shell
+            </button>
+            <button id="tab-rails-btn" class="hidden px-3 py-1 rounded-t-md text-slate-400 hover:text-slate-200 transition flex items-center gap-1.5">
+              <i class="fa-solid fa-server"></i> Rails Simulator
             </button>
           </div>
 
@@ -233,6 +263,9 @@
             </button>
           </div>
         </div>
+
+        <!-- Rails Multi-file Explorer Bar (Injected dynamically for Rails modules) -->
+        <div id="rails-file-explorer" class="hidden bg-slate-950 border-b border-slate-800/80 px-4 py-1.5 flex items-center gap-2 overflow-x-auto select-none shrink-0"></div>
 
         <!-- TAB 1: CODE EDITOR + TERMINAL SPLIT -->
         <div id="pane-script-editor" class="flex-1 flex flex-col overflow-hidden">
@@ -257,12 +290,12 @@
             </div>
           </div>
 
-          <!-- INTEGRATED TERMINAL CONSOLE (FreeCodeCamp Style) -->
-          <div class="h-56 bg-black border-t border-slate-800 flex flex-col font-mono text-xs overflow-hidden shrink-0">
+          <!-- INTEGRATED TERMINAL CONSOLE -->
+          <div class="h-48 bg-black border-t border-slate-800 flex flex-col font-mono text-xs overflow-hidden shrink-0">
             <!-- Terminal Header -->
             <div class="bg-slate-950 px-3 py-1.5 border-b border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400">
               <span class="flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                 <span>Terminal Console Output</span>
               </span>
               <button id="clear-term-btn" class="hover:text-slate-200 text-[10px] transition">Clear</button>
@@ -279,26 +312,108 @@
 
         <!-- TAB 2: LIVE IRB TERMINAL SHELL -->
         <div id="pane-live-irb" class="hidden flex-1 flex-col bg-black font-mono text-xs overflow-hidden">
-          <div class="bg-slate-950 px-4 py-2 border-b border-slate-800 flex items-center justify-between text-slate-400 text-xs">
+          <div class="bg-slate-950 px-4 py-2 border-b border-slate-800 flex items-center justify-between text-slate-400 text-xs shrink-0">
             <div class="flex items-center gap-2">
               <i class="fa-solid fa-terminal text-ruby-400"></i>
-              <span>Interactive IRB Session (ruby-3.4.10)</span>
+              <span>Interactive IRB Session (ruby-3.3.0)</span>
             </div>
             <button id="clear-irb-logs-btn" class="hover:text-slate-200 text-[11px] transition">Clear Terminal</button>
           </div>
 
           <div id="irb-screen" class="flex-1 p-4 overflow-y-auto space-y-2 bg-black">
-            <div class="text-slate-500 space-y-1 border-b border-slate-900 pb-2">
+            <div class="text-slate-500 space-y-1 border-b border-slate-900/60 pb-2">
               <div>irb(main):001:0> # Interactive Ruby Shell (IRB)</div>
               <div>irb(main):002:0> # Type any Ruby code below and press Enter. Variables persist across commands!</div>
             </div>
             <div id="irb-history-log" class="space-y-2"></div>
           </div>
 
-          <div class="p-2.5 bg-slate-950 border-t border-slate-800 flex items-center gap-2">
+          <div class="p-2.5 bg-slate-950 border-t border-slate-800 flex items-center gap-2 shrink-0">
             <span id="irb-prompt-label" class="text-ruby-400 font-bold shrink-0">irb(main):001></span>
-            <input id="irb-input-field" type="text" placeholder="e.g. puts 'Hello Ruby!' or 10 + 20" class="flex-1 bg-black border border-slate-800 rounded px-2.5 py-1.5 text-slate-100 focus:outline-none focus:border-ruby-500 text-xs">
-            <button id="irb-send-btn" class="bg-ruby-600 hover:bg-ruby-500 text-white px-3 py-1.5 rounded transition text-xs shrink-0">Run</button>
+            <input id="irb-input-field" type="text" placeholder="e.g. puts 'Hello Ruby!' or 10 + 20" class="flex-1 bg-black border border-slate-800 rounded px-2.5 py-1.5 text-slate-100 focus:outline-none focus:border-ruby-500 text-xs font-mono">
+            <button id="irb-send-btn" class="bg-ruby-600 hover:bg-ruby-500 text-white px-3 py-1.5 rounded transition text-xs shrink-0 font-medium">Run</button>
+          </div>
+        </div>
+
+        <!-- TAB 3: RAILS INTERACTIVE SIMULATOR (MVC visualizer + DB Table renderer) -->
+        <div id="pane-rails-simulator" class="hidden flex-1 flex-col overflow-hidden bg-slate-950 font-mono text-xs">
+          <!-- Mock Address Bar -->
+          <div class="bg-slate-900 border-b border-slate-800 px-4 py-2 flex items-center gap-3 shrink-0">
+            <button id="address-method" class="text-[10px] uppercase font-bold tracking-wider text-emerald-400 bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-900/60">GET</button>
+            <input id="address-bar-input" type="text" value="/posts" class="flex-1 bg-black border border-slate-800 rounded px-2.5 py-1 text-slate-100 focus:outline-none focus:border-ruby-500 text-xs font-mono">
+            <button id="address-go-btn" class="bg-ruby-600 hover:bg-ruby-500 text-white px-3.5 py-1 rounded transition text-xs shrink-0 font-sans font-medium flex items-center gap-1.5">
+              <span>Go</span><i class="fa-solid fa-arrow-right text-[10px]"></i>
+            </button>
+          </div>
+          
+          <div class="flex-1 flex flex-col lg:flex-row overflow-hidden w-full">
+            <!-- Left Half: Visual Flows & SQLite Inspector -->
+            <div class="w-full lg:w-1/2 flex flex-col border-r border-slate-800 bg-slate-900/20 overflow-y-auto p-4 space-y-4">
+              
+              <!-- MVC Flow Node Visualizer -->
+              <div class="border border-slate-800/80 rounded-xl p-3.5 bg-slate-950/40 space-y-3 shadow-inner">
+                <h4 class="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                  <i class="fa-solid fa-circle-nodes text-ruby-500"></i> MVC Request Lifecycle
+                </h4>
+                <div class="grid grid-cols-5 gap-1.5 text-center text-[10px] font-semibold text-slate-400">
+                  <div id="flow-route" class="p-2 bg-slate-900 border border-slate-800 rounded transition duration-200">Route</div>
+                  <div id="flow-ctrl" class="p-2 bg-slate-900 border border-slate-800 rounded transition duration-200">Controller</div>
+                  <div id="flow-db" class="p-2 bg-slate-900 border border-slate-800 rounded transition duration-200">AR DB</div>
+                  <div id="flow-view" class="p-2 bg-slate-900 border border-slate-800 rounded transition duration-200">ERB View</div>
+                  <div id="flow-res" class="p-2 bg-slate-900 border border-slate-800 rounded transition duration-200">Response</div>
+                </div>
+              </div>
+              
+              <!-- DB Inspector Panel -->
+              <div class="border border-slate-800/80 rounded-xl p-3.5 bg-slate-950/40 flex-1 flex flex-col min-h-[220px] shadow-inner">
+                <div class="flex items-center justify-between pb-2.5 border-b border-slate-800">
+                  <h4 class="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                    <i class="fa-solid fa-database text-ruby-500"></i> SQLite Simulator Inspector
+                  </h4>
+                  <div id="db-tables-list" class="flex gap-1">
+                    <!-- Dynamic database table buttons injected here -->
+                  </div>
+                </div>
+                
+                <div class="flex-1 overflow-auto mt-2 text-[11px]" id="db-table-data">
+                  <span class="text-slate-500 italic">No tables created yet. Run migrations or create records.</span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Right Half: Rendered Browser Preview + Mailbox + Jobs (Subtabs) -->
+            <div class="w-full lg:w-1/2 flex flex-col bg-slate-950 overflow-hidden">
+              <div class="bg-slate-900/60 px-3 py-1.5 border-b border-slate-800 flex items-center justify-between shrink-0 font-sans text-xs">
+                <div class="flex items-center gap-1.5 text-[10px] text-slate-400">
+                  <span class="w-2.5 h-2.5 rounded-full bg-rose-500/20 border border-rose-500/40"></span>
+                  <span class="w-2.5 h-2.5 rounded-full bg-emerald-500/20 border border-emerald-500/40"></span>
+                  <span class="ml-2 font-medium text-slate-300">Rails Environment Outputs</span>
+                </div>
+                <div class="flex items-center space-x-1">
+                  <button id="subtab-view-btn" class="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-ruby-400 font-semibold border border-slate-700">HTML View</button>
+                  <button id="subtab-mail-btn" class="px-2 py-0.5 rounded text-[10px] text-slate-400 hover:text-slate-200 transition flex items-center gap-1">
+                    <span>Mailbox</span>
+                    <span id="mail-badge" class="bg-ruby-600 text-white rounded-full px-1.5 py-0.2 text-[8px] font-bold hidden">0</span>
+                  </button>
+                  <button id="subtab-jobs-btn" class="px-2 py-0.5 rounded text-[10px] text-slate-400 hover:text-slate-200 transition">Jobs Worker</button>
+                </div>
+              </div>
+              
+              <!-- Screen 1: HTML View Screen -->
+              <div id="web-render-screen" class="flex-1 p-5 bg-slate-900/10 overflow-y-auto font-sans text-slate-200 leading-normal">
+                <div class="text-slate-500 italic font-mono text-xs">Run your Rails server code to inspect output here.</div>
+              </div>
+
+              <!-- Screen 2: Mailbox Screen -->
+              <div id="mailbox-screen" class="hidden flex-1 p-4 bg-slate-950 overflow-y-auto text-slate-200 leading-normal">
+                <div class="text-slate-500 italic text-center py-8">Inbox is empty. Trigger email delivery inside your controllers or script.</div>
+              </div>
+
+              <!-- Screen 3: Jobs Screen -->
+              <div id="jobs-screen" class="hidden flex-1 p-4 bg-slate-950 overflow-y-auto text-slate-200 leading-normal">
+                <div class="text-slate-500 italic text-center py-8 font-mono text-xs">No background jobs enqueued. Run ActiveJob perform_later.</div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -321,13 +436,13 @@
 
       <div class="space-y-2">
         <span class="text-xs uppercase tracking-widest text-amber-400 font-mono font-bold">Certificate of Completion</span>
-        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-100">Ruby Programming Foundations</h2>
-        <p class="text-xs text-slate-400">Awarded for successfully mastering all 10 modules & 30 hands-on code challenges</p>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-100">Ruby & Rails Full-Stack Developer</h2>
+        <p class="text-xs text-slate-400">Awarded for successfully mastering all 30 modules & 168 hands-on code challenges</p>
       </div>
 
       <div class="p-4 bg-slate-950 rounded-xl border border-slate-800 text-left space-y-2 font-mono text-xs">
         <div class="text-slate-400">Recipient: <span class="text-slate-100 font-semibold font-sans">Ruby Developer</span></div>
-        <div class="text-slate-400">Completed Steps: <span class="text-emerald-400">50 / 50 Challenges</span></div>
+        <div class="text-slate-400">Completed Steps: <span class="text-emerald-400">168 / 168 Challenges</span></div>
         <div class="text-slate-400">Issued On: <span id="cert-date" class="text-amber-300">2026</span></div>
       </div>
 
@@ -344,7 +459,7 @@
         <i class="fa-solid fa-triangle-exclamation"></i>
       </div>
       <h3 class="text-lg font-bold text-slate-100">Reset All Course Progress?</h3>
-      <p class="text-xs text-slate-400 leading-relaxed">This will clear all 50 completed challenge markers and saved code. This action cannot be undone.</p>
+      <p class="text-xs text-slate-400 leading-relaxed">This will clear all 168 completed challenge markers and saved code. This action cannot be undone.</p>
       <div class="flex items-center justify-center gap-3 pt-2">
         <button id="cancel-reset-btn" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-medium transition">Cancel</button>
         <button id="confirm-reset-btn" class="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-lg text-xs font-medium transition">Yes, Reset Everything</button>
@@ -352,968 +467,567 @@
     </div>
   </div>
 
+  <!-- CURRICULUM DATA PARTS -->
+  <script src="src/curriculum_part1.js"></script>
+  <script src="src/curriculum_part2.js"></script>
+  <script src="src/curriculum_part3.js"></script>
+
+  <!-- ES MODULES MAIN LOGIC & DATASET -->
   <script>
-
-    // CURRICULUM DATASET (10 Lessons, 50 Explicit Steps)
-    const lessonsData = [
-      {
-        id: 1,
-        title: "Ruby Scripts & IRB",
-        duration: "20 min",
-        theory: `
-          <p>Ruby is an interpreted, object-oriented programming language designed for productivity and natural syntax. Ruby code can be executed in script files (<code>.rb</code>) or interactively using <strong>IRB (Interactive Ruby)</strong>.</p>
-          <h4 class="text-xs font-bold text-slate-200 mt-2">Printing Output Methods:</h4>
-          <ul class="list-disc pl-5 space-y-1">
-            <li><code>puts</code>: Outputs text and appends a new line.</li>
-            <li><code>print</code>: Outputs text on the same line without a newline.</li>
-            <li><code>p</code>: Prints inspected representation (useful for debugging quotes & arrays).</li>
-            <li><code><<~HEREDOC</code>: Multi-line strings maintaining clean indentation.</li>
-          </ul>
-        `,
-        quiz: {
-          question: "Which method outputs text and automatically appends a new line character?",
-          options: ["print", "puts", "p", "echo"],
-          correct: 1,
-          rationale: "<code>puts</code> automatically appends a newline character after printing."
-        },
-        exercises: [
-          {
-            stepNumber: 1,
-            level: "Warm-Up",
-            title: "1. Basic Output with puts",
-            prompt: "Use <code>puts</code> to print <code>'Hello, Ruby!'</code> to the terminal console.",
-            initialCode: `# Step 1: Write your puts statement below:\n`,
-            hint: "Write: puts 'Hello, Ruby!'",
-            solution: "puts 'Hello, Ruby!'",
-            validate: (out) => out.includes("Hello, Ruby!")
-          },
-          {
-            stepNumber: 2,
-            level: "Core Practice",
-            title: "2. Combining print and puts",
-            prompt: "Use <code>print</code> to output <code>'Created by '</code> and then <code>puts</code> to output <code>'Matz'</code> on the same line.",
-            initialCode: `# Step 2: Use print then puts\n`,
-            hint: "print 'Created by '\nputs 'Matz'",
-            solution: "print 'Created by '\nputs 'Matz'",
-            validate: (out) => out.includes("Created by Matz")
-          },
-          {
-            stepNumber: 3,
-            level: "Core Practice",
-            title: "3. Inspected Output with p",
-            prompt: "Use <code>p</code> to print the year <code>2026</code>.",
-            initialCode: `# Step 3: Use p to output 2026\n`,
-            hint: "p 2026",
-            solution: "p 2026",
-            validate: (out) => out.includes("2026")
-          },
-          {
-            stepNumber: 4,
-            level: "Core Practice",
-            title: "4. Expressions in Output",
-            prompt: "Use <code>puts</code> to output the calculated result of <code>50 + 50</code>.",
-            initialCode: `# Step 4: Output calculation:\n`,
-            hint: "puts 50 + 50",
-            solution: "puts 50 + 50",
-            validate: (out) => out.includes("100")
-          },
-          {
-            stepNumber: 5,
-            level: "Challenge",
-            title: "5. Multi-line Heredoc Output",
-            prompt: "Print a multi-line output containing both words <code>'Ruby'</code> and <code>'Awesome'</code> using <code>puts</code>.",
-            initialCode: `# Step 5: Output multi-line string:\n`,
-            hint: 'puts "Ruby\\nIs\\nAwesome"',
-            solution: 'puts "Ruby\\nIs\\nAwesome"',
-            validate: (out) => out.includes("Ruby") && out.includes("Awesome")
-          }
-        ]
-      },
-      {
-        id: 2,
-        title: "Strings in Ruby",
-        duration: "25 min",
-        theory: `
-          <p>Strings are sequences of characters wrapped in double quotes <code>"..."</code> or single quotes <code>'...'</code>.</p>
-          <h4 class="text-xs font-bold text-slate-200 mt-2">String Interpolation & Slicing:</h4>
-          <p>Double quotes evaluate Ruby code inside <code>\#{expression}</code>. You can slice strings with ranges <code>string[0..3]</code> or trim whitespace with <code>.strip</code>.</p>
-        `,
-        quiz: {
-          question: "Which quote style supports string interpolation \#{...} in Ruby?",
-          options: ["Single quotes ' '", "Double quotes \" \"", "Backticks ` `", "None"],
-          correct: 1,
-          rationale: "Only double-quoted strings perform variable interpolation in Ruby."
-        },
-        exercises: [
-          {
-            stepNumber: 6,
-            level: "Warm-Up",
-            title: "6. String Interpolation",
-            prompt: "Given <code>name = 'Mateus'</code>, output <code>'Hello, Mateus!'</code> using string interpolation.",
-            initialCode: `name = "Mateus"\n# Write puts statement with interpolation:\n`,
-            hint: 'puts "Hello, #{name}!"',
-            solution: 'name = "Mateus"\nputs "Hello, #{name}!"',
-            validate: (out) => out.includes("Hello, Mateus!")
-          },
-          {
-            stepNumber: 7,
-            level: "Core Practice",
-            title: "7. Uppercase Transformation",
-            prompt: "Given <code>framework = 'rails'</code>, print <code>'I USE RAILS'</code> using <code>.upcase</code> inside interpolation.",
-            initialCode: `framework = "rails"\n`,
-            hint: 'puts "I USE #{framework.upcase}"',
-            solution: 'framework = "rails"\nputs "I USE #{framework.upcase}"',
-            validate: (out) => out.includes("I USE RAILS")
-          },
-          {
-            stepNumber: 8,
-            level: "Core Practice",
-            title: "8. Reversing and Length",
-            prompt: "Given <code>word = 'Developer'</code>, output its reverse and length separated by space (e.g. <code>repoleveD 9</code>).",
-            initialCode: `word = "Developer"\n`,
-            hint: 'puts "#{word.reverse} #{word.length}"',
-            solution: 'word = "Developer"\nputs "#{word.reverse} #{word.length}"',
-            validate: (out) => out.includes("repoleveD 9")
-          },
-          {
-            stepNumber: 9,
-            level: "Core Practice",
-            title: "9. String Repetition",
-            prompt: "Multiply the string <code>'Ruby '</code> by <code>3</code> and print the repeated string.",
-            initialCode: `# Multiply string by 3 and puts:\n`,
-            hint: "puts 'Ruby ' * 3",
-            solution: "puts 'Ruby ' * 3",
-            validate: (out) => out.includes("Ruby Ruby Ruby")
-          },
-          {
-            stepNumber: 10,
-            level: "Challenge",
-            title: "10. Trimming Whitespace",
-            prompt: "Given <code>text = '  Ruby on Rails  '</code>, print the string cleaned of extra surrounding space using <code>.strip</code>.",
-            initialCode: `text = "  Ruby on Rails  "\n`,
-            hint: "puts text.strip",
-            solution: 'text = "  Ruby on Rails  "\nputs text.strip',
-            validate: (out) => out.includes("Ruby on Rails")
-          }
-        ]
-      },
-      {
-        id: 3,
-        title: "Integers & Floats in Ruby",
-        duration: "25 min",
-        theory: `
-          <p>Ruby handles whole numbers as <strong>Integers</strong> and decimal numbers as <strong>Floats</strong>.</p>
-          <p>Key numeric methods include <code>.abs</code> (absolute value), <code>.round</code>, <code>.ceil</code>, and <code>.floor</code>.</p>
-        `,
-        quiz: {
-          question: "What is the evaluated output of 7 / 2 in Ruby?",
-          options: ["3.5", "3", "4", "Error"],
-          correct: 1,
-          rationale: "Integer division discards fractional remainder, yielding 3."
-        },
-        exercises: [
-          {
-            stepNumber: 11,
-            level: "Warm-Up",
-            title: "11. Basic Arithmetic",
-            prompt: "Calculate <code>25 * 4</code> and print the result using <code>puts</code>.",
-            initialCode: `# Calculate 25 * 4:\n`,
-            hint: "puts 25 * 4",
-            solution: "puts 25 * 4",
-            validate: (out) => out.includes("100")
-          },
-          {
-            stepNumber: 12,
-            level: "Core Practice",
-            title: "12. Float Division",
-            prompt: "Divide <code>15</code> by <code>4</code> so that it outputs float <code>3.75</code>.",
-            initialCode: `a = 15\nb = 4\n# Output 3.75:\n`,
-            hint: "puts a.to_f / b",
-            solution: "a = 15\nb = 4\nputs a.to_f / b",
-            validate: (out) => out.includes("3.75")
-          },
-          {
-            stepNumber: 13,
-            level: "Core Practice",
-            title: "13. Converting String to Integer",
-            prompt: "Convert <code>str = '100'</code> using <code>.to_i</code>, add <code>50</code>, and print result.",
-            initialCode: `str = "100"\n`,
-            hint: "puts str.to_i + 50",
-            solution: 'str = "100"\nputs str.to_i + 50',
-            validate: (out) => out.includes("150")
-          },
-          {
-            stepNumber: 14,
-            level: "Core Practice",
-            title: "14. Modulo Remainder",
-            prompt: "Use the modulo operator <code>%</code> to find and print the remainder of <code>17</code> divided by <code>5</code>.",
-            initialCode: `# Calculate 17 % 5:\n`,
-            hint: "puts 17 % 5",
-            solution: "puts 17 % 5",
-            validate: (out) => out.includes("2")
-          },
-          {
-            stepNumber: 15,
-            level: "Challenge",
-            title: "15. Absolute Values",
-            prompt: "Given <code>num = -12.8</code>, print its positive absolute value using <code>.abs</code>.",
-            initialCode: `num = -12.8\n`,
-            hint: "puts num.abs",
-            solution: "num = -12.8\nputs num.abs",
-            validate: (out) => out.includes("12.8")
-          }
-        ]
-      },
-      {
-        id: 4,
-        title: "Arrays in Ruby",
-        duration: "30 min",
-        theory: `
-          <p>An <strong>Array</strong> is an ordered collection of objects. Use shovel <code>&lt;&lt;</code> to append, <code>.sort</code> to order, and <code>.compact</code> / <code>.uniq</code> to clean lists.</p>
-        `,
-        quiz: {
-          question: "Which operator is the shovel shortcut to append an element to an array?",
-          options: ["<<", "+=", "->", "::"],
-          correct: 0,
-          rationale: "The `<<` shovel operator appends items to an array directly."
-        },
-        exercises: [
-          {
-            stepNumber: 16,
-            level: "Warm-Up",
-            title: "16. Array Shovel Operator",
-            prompt: "Append <code>'Rails'</code> to <code>tech = ['Ruby', 'Go']</code> using <code>&lt;&lt;</code> and print <code>tech</code>.",
-            initialCode: `tech = ["Ruby", "Go"]\n# Append 'Rails' and puts tech:\n`,
-            hint: "tech << 'Rails'\nputs tech",
-            solution: 'tech = ["Ruby", "Go"]\ntech << "Rails"\nputs tech',
-            validate: (out) => out.includes("Rails")
-          },
-          {
-            stepNumber: 17,
-            level: "Core Practice",
-            title: "17. Sorting Arrays",
-            prompt: "Given <code>nums = [5, 2, 9, 1]</code>, print the sorted array elements.",
-            initialCode: `nums = [5, 2, 9, 1]\n`,
-            hint: "puts nums.sort",
-            solution: "nums = [5, 2, 9, 1]\nputs nums.sort",
-            validate: (out) => out.includes("1") && out.includes("9")
-          },
-          {
-            stepNumber: 18,
-            level: "Core Practice",
-            title: "18. Array Membership",
-            prompt: "Check if <code>'Docker'</code> exists in <code>tools = ['Git', 'Docker', 'Linux']</code> using <code>.include?</code> and print the boolean.",
-            initialCode: `tools = ["Git", "Docker", "Linux"]\n`,
-            hint: "puts tools.include?('Docker')",
-            solution: 'tools = ["Git", "Docker", "Linux"]\nputs tools.include?("Docker")',
-            validate: (out) => out.includes("true")
-          },
-          {
-            stepNumber: 19,
-            level: "Core Practice",
-            title: "19. First & Last Elements",
-            prompt: "Given <code>items = ['First', 'Middle', 'Last']</code>, print <code>first</code> and <code>last</code> elements separated by space.",
-            initialCode: `items = ["First", "Middle", "Last"]\n`,
-            hint: 'puts "#{items.first} #{items.last}"',
-            solution: 'items = ["First", "Middle", "Last"]\nputs "#{items.first} #{items.last}"',
-            validate: (out) => out.includes("First Last")
-          },
-          {
-            stepNumber: 20,
-            level: "Challenge",
-            title: "20. Cleaning Arrays with .compact & .uniq",
-            prompt: "Given <code>arr = [1, 2, 2, 3, nil]</code>, print unique non-nil numbers using <code>.compact.uniq</code>.",
-            initialCode: `arr = [1, 2, 2, 3, nil]\n`,
-            hint: "puts arr.compact.uniq",
-            solution: "arr = [1, 2, 2, 3, nil]\nputs arr.compact.uniq",
-            validate: (out) => out.includes("1") && out.includes("2") && out.includes("3")
-          }
-        ]
-      },
-      {
-        id: 5,
-        title: "Hashes in Ruby",
-        duration: "30 min",
-        theory: `
-          <p>A <strong>Hash</strong> is a key-value dictionary. Keys are typically <strong>Symbols</strong> (e.g., <code>:name</code>). Useful methods include <code>.keys</code>, <code>.key?</code>, <code>.merge</code>, and <code>.fetch</code>.</p>
-        `,
-        quiz: {
-          question: "What is a main benefit of Ruby Symbols (:symbol) over Strings ('string')?",
-          options: ["Immutable and memory efficient", "Faster string concatenation", "Can contain numbers only", "None"],
-          correct: 0,
-          rationale: "Symbols are unique, immutable identifiers that reuse memory locations."
-        },
-        exercises: [
-          {
-            stepNumber: 21,
-            level: "Warm-Up",
-            title: "21. Accessing Hash Values",
-            prompt: "Given <code>user = { name: 'Alice', role: 'Dev' }</code>, print <code>user[:name]</code>.",
-            initialCode: `user = { name: "Alice", role: "Dev" }\n`,
-            hint: "puts user[:name]",
-            solution: 'user = { name: "Alice", role: "Dev" }\nputs user[:name]',
-            validate: (out) => out.includes("Alice")
-          },
-          {
-            stepNumber: 22,
-            level: "Core Practice",
-            title: "22. Adding Hash Keys",
-            prompt: "Add key <code>:active</code> with value <code>true</code> to <code>user</code>, then print <code>user.keys</code>.",
-            initialCode: `user = { name: "Alice", role: "Dev" }\n# Add :active => true\n`,
-            hint: "user[:active] = true\nputs user.keys",
-            solution: 'user = { name: "Alice", role: "Dev" }\nuser[:active] = true\nputs user.keys',
-            validate: (out) => out.includes("active")
-          },
-          {
-            stepNumber: 23,
-            level: "Core Practice",
-            title: "23. Hash Key Lookup",
-            prompt: "Check if key <code>:role</code> exists in <code>user</code> using <code>.key?(:role)</code> and print the boolean.",
-            initialCode: `user = { name: "Alice", role: "Dev" }\n`,
-            hint: "puts user.key?(:role)",
-            solution: 'user = { name: "Alice", role: "Dev" }\nputs user.key?(:role)',
-            validate: (out) => out.includes("true")
-          },
-          {
-            stepNumber: 24,
-            level: "Core Practice",
-            title: "24. Merging Hashes",
-            prompt: "Merge <code>h1 = { a: 1 }</code> with <code>h2 = { b: 2 }</code> using <code>.merge</code> and print the result.",
-            initialCode: `h1 = { a: 1 }\nh2 = { b: 2 }\n`,
-            hint: "puts h1.merge(h2)",
-            solution: "h1 = { a: 1 }\nh2 = { b: 2 }\nputs h1.merge(h2)",
-            validate: (out) => out.includes("a") && out.includes("b")
-          },
-          {
-            stepNumber: 25,
-            level: "Challenge",
-            title: "25. Safe Key Fetching",
-            prompt: "Use <code>user.fetch(:age, 30)</code> on <code>user = { name: 'Bob' }</code> to retrieve age with fallback default <code>30</code>.",
-            initialCode: `user = { name: "Bob" }\n`,
-            hint: "puts user.fetch(:age, 30)",
-            solution: 'user = { name: "Bob" }\nputs user.fetch(:age, 30)',
-            validate: (out) => out.includes("30")
-          }
-        ]
-      },
-      {
-        id: 6,
-        title: "Conditionals in Ruby",
-        duration: "35 min",
-        theory: `
-          <p>Control flow structures include <code>if</code>, <code>elsif</code>, <code>else</code>, <code>unless</code>, ternary <code>?:</code>, and <code>case / when</code>.</p>
-        `,
-        quiz: {
-          question: "When does an `unless` block execute its statements?",
-          options: ["When condition is true", "When condition is false", "Always", "Never"],
-          correct: 1,
-          rationale: "`unless` executes only when the given expression evaluates to false."
-        },
-        exercises: [
-          {
-            stepNumber: 26,
-            level: "Warm-Up",
-            title: "26. Simple if / else",
-            prompt: "If <code>age >= 18</code> print <code>'Adult'</code>, else print <code>'Minor'</code> for <code>age = 20</code>.",
-            initialCode: `age = 20\n# Write if/else statement:\n`,
-            hint: "if age >= 18\n  puts 'Adult'\nelse\n  puts 'Minor'\nend",
-            solution: "age = 20\nif age >= 18\n  puts 'Adult'\nelse\n  puts 'Minor'\nend",
-            validate: (out) => out.includes("Adult")
-          },
-          {
-            stepNumber: 27,
-            level: "Core Practice",
-            title: "27. The unless Keyword",
-            prompt: "Use <code>unless logged_in</code> to print <code>'Please Log In'</code> when <code>logged_in = false</code>.",
-            initialCode: `logged_in = false\n`,
-            hint: "puts 'Please Log In' unless logged_in",
-            solution: "logged_in = false\nputs 'Please Log In' unless logged_in",
-            validate: (out) => out.includes("Please Log In")
-          },
-          {
-            stepNumber: 28,
-            level: "Core Practice",
-            title: "28. Ternary Operator",
-            prompt: "Assign <code>status</code> based on <code>score = 85</code>: if <code>>= 70</code> then <code>'Pass'</code> else <code>'Fail'</code>. Print <code>status</code>.",
-            initialCode: `score = 85\n`,
-            hint: "status = score >= 70 ? 'Pass' : 'Fail'\nputs status",
-            solution: "score = 85\nstatus = score >= 70 ? 'Pass' : 'Fail'\nputs status",
-            validate: (out) => out.includes("Pass")
-          },
-          {
-            stepNumber: 29,
-            level: "Core Practice",
-            title: "29. Multi-Branching with elsif",
-            prompt: "Given <code>grade = 85</code>, print <code>'A'</code> if <code>>= 90</code>, <code>'B'</code> if <code>>= 80</code>, or <code>'C'</code> otherwise.",
-            initialCode: `grade = 85\n`,
-            hint: "if grade >= 90\n  puts 'A'\nelsif grade >= 80\n  puts 'B'\nelse\n  puts 'C'\nend",
-            solution: "grade = 85\nif grade >= 90\n  puts 'A'\nelsif grade >= 80\n  puts 'B'\nelse\n  puts 'C'\nend",
-            validate: (out) => out.includes("B")
-          },
-          {
-            stepNumber: 30,
-            level: "Challenge",
-            title: "30. Case / When Switching",
-            prompt: "Given <code>lang = 'Ruby'</code>, use <code>case lang / when 'Ruby'</code> to print <code>'Gem'</code>.",
-            initialCode: `lang = "Ruby"\n`,
-            hint: "case lang\nwhen 'Ruby'\n  puts 'Gem'\nend",
-            solution: 'lang = "Ruby"\ncase lang\nwhen "Ruby"\n  puts "Gem"\nend',
-            validate: (out) => out.includes("Gem")
-          }
-        ]
-      },
-      {
-        id: 7,
-        title: "Methods & Functions",
-        duration: "35 min",
-        theory: `
-          <p>Methods are defined with <code>def</code>. Ruby features predicate methods (ending in <code>?</code>), bang methods (ending in <code>!</code>), and splat arguments (<code>*args</code>).</p>
-        `,
-        quiz: {
-          question: "What does a Ruby method return if no explicit return statement is written?",
-          options: ["nil", "The last evaluated expression", "true", "Error"],
-          correct: 1,
-          rationale: "Ruby methods implicitly return the final evaluated value inside their body."
-        },
-        exercises: [
-          {
-            stepNumber: 31,
-            level: "Warm-Up",
-            title: "31. Defining a Greet Method",
-            prompt: "Define <code>greet(name)</code> returning <code>'Hello, ' + name</code>. Print <code>greet('Ruby')</code>.",
-            initialCode: `# Define greet method:\n\nputs greet("Ruby")`,
-            hint: 'def greet(name)\n  "Hello, #{name}"\nend',
-            solution: 'def greet(name)\n  "Hello, #{name}"\nend\nputs greet("Ruby")',
-            validate: (out) => out.includes("Hello, Ruby")
-          },
-          {
-            stepNumber: 32,
-            level: "Core Practice",
-            title: "32. Default Parameters",
-            prompt: "Define <code>square(n = 5)</code> returning <code>n * n</code>. Call <code>square()</code> with no arguments and print result.",
-            initialCode: `# Define square with default n = 5:\n`,
-            hint: "def square(n = 5)\n  n * n\nend\nputs square()",
-            solution: "def square(n = 5)\n  n * n\nend\nputs square()",
-            validate: (out) => out.includes("25")
-          },
-          {
-            stepNumber: 33,
-            level: "Core Practice",
-            title: "33. Predicate Methods",
-            prompt: "Define method <code>is_even?(num)</code> returning boolean true if <code>num % 2 == 0</code>. Print <code>is_even?(4)</code>.",
-            initialCode: `# Define is_even? method:\n`,
-            hint: "def is_even?(num)\n  num % 2 == 0\nend\nputs is_even?(4)",
-            solution: "def is_even?(num)\n  num % 2 == 0\nend\nputs is_even?(4)",
-            validate: (out) => out.includes("true")
-          },
-          {
-            stepNumber: 34,
-            level: "Core Practice",
-            title: "34. Mutating Bang Methods (!)",
-            prompt: "In-place mutate <code>str = 'hello'</code> using <code>str.upcase!</code>, then print <code>str</code>.",
-            initialCode: `str = "hello"\n# Mutate with upcase!:\n`,
-            hint: "str.upcase!\nputs str",
-            solution: 'str = "hello"\nstr.upcase!\nputs str',
-            validate: (out) => out.includes("HELLO")
-          },
-          {
-            stepNumber: 35,
-            level: "Challenge",
-            title: "35. Splat Arguments (*nums)",
-            prompt: "Define <code>sum(*nums)</code> returning <code>nums.reduce(0, :+)</code>. Print <code>sum(1, 2, 3, 4)</code>.",
-            initialCode: `# Define sum with splat operator:\n`,
-            hint: "def sum(*nums)\n  nums.reduce(0, :+)\nend\nputs sum(1, 2, 3, 4)",
-            solution: "def sum(*nums)\n  nums.reduce(0, :+)\nend\nputs sum(1, 2, 3, 4)",
-            validate: (out) => out.includes("10")
-          }
-        ]
-      },
-      {
-        id: 8,
-        title: "Refactoring Ruby Code",
-        duration: "30 min",
-        theory: `
-          <p>Idiomatic Ruby utilizes guard clauses, safe navigation <code>&.</code>, conditional assignment <code>||=</code>, and symbol-to-proc shortcuts (<code>(&:method)</code>).</p>
-        `,
-        quiz: {
-          question: "What does the conditional assignment operator ||= do in Ruby?",
-          options: ["Assigns value only if variable is nil or false", "Always overwrites", "Compares equality", "Multiplies"],
-          correct: 0,
-          rationale: "<code>a ||= b</code> assigns <code>b</code> to <code>a</code> only if <code>a</code> is currently false or nil."
-        },
-        exercises: [
-          {
-            stepNumber: 36,
-            level: "Warm-Up",
-            title: "36. Guard Clause Refactoring",
-            prompt: "Use a single-line guard clause <code>return 'Invalid' if age < 0</code> inside <code>check_age(age)</code>.",
-            initialCode: `def check_age(age)\n  return "Invalid" if age < 0\n  "Valid"\nend\nputs check_age(-5)`,
-            hint: "return 'Invalid' if age < 0",
-            solution: 'def check_age(age)\n  return "Invalid" if age < 0\n  "Valid"\nend\nputs check_age(-5)',
-            validate: (out) => out.includes("Invalid")
-          },
-          {
-            stepNumber: 37,
-            level: "Core Practice",
-            title: "37. Conditional Assignment ||=",
-            prompt: "Use <code>title ||= 'Untitled'</code> to assign default title when nil, then print <code>title</code>.",
-            initialCode: `title = nil\n# Use ||= operator:\n`,
-            hint: "title ||= 'Untitled'\nputs title",
-            solution: 'title = nil\ntitle ||= "Untitled"\nputs title',
-            validate: (out) => out.includes("Untitled")
-          },
-          {
-            stepNumber: 38,
-            level: "Core Practice",
-            title: "38. One-line Method Definition",
-            prompt: "Write a 1-line method <code>double(x)</code>: <code>def double(x) x * 2 end</code>. Test with <code>puts double(10)</code>.",
-            initialCode: `def double(x) x * 2 end\nputs double(10)`,
-            hint: "def double(x) x * 2 end",
-            solution: "def double(x) x * 2 end\nputs double(10)",
-            validate: (out) => out.includes("20")
-          },
-          {
-            stepNumber: 39,
-            level: "Core Practice",
-            title: "39. Safe Navigation Operator (&.)",
-            prompt: "Call <code>user&.name</code> when <code>user = nil</code> safely using <code>|| 'Guest'</code> fallback, and print result.",
-            initialCode: `user = nil\n`,
-            hint: "puts user&.name || 'Guest'",
-            solution: 'user = nil\nputs user&.name || "Guest"',
-            validate: (out) => out.includes("Guest")
-          },
-          {
-            stepNumber: 40,
-            level: "Challenge",
-            title: "40. Symbol to Proc Shortcut",
-            prompt: "Uppercase array <code>['alice', 'bob']</code> using shortcut <code>.map(&:upcase)</code> and print result.",
-            initialCode: `names = ["alice", "bob"]\n`,
-            hint: "puts names.map(&:upcase)",
-            solution: 'names = ["alice", "bob"]\nputs names.map(&:upcase)',
-            validate: (out) => out.includes("ALICE") && out.includes("BOB")
-          }
-        ]
-      },
-      {
-        id: 9,
-        title: "Loops & Blocks in Ruby",
-        duration: "40 min",
-        theory: `
-          <p>Iterators like <code>.times</code>, <code>.each</code>, <code>.map</code>, <code>.select</code>, and <code>.reduce</code> process collections concisely with blocks.</p>
-        `,
-        quiz: {
-          question: "Which method transforms an array by returning a NEW array with updated values?",
-          options: [".each", ".map", ".times", ".select"],
-          correct: 1,
-          rationale: "<code>.map</code> returns a new collection containing the result of block execution on each element."
-        },
-        exercises: [
-          {
-            stepNumber: 41,
-            level: "Warm-Up",
-            title: "41. The .times Iterator",
-            prompt: "Use <code>3.times</code> loop to print <code>'Ruby'</code> 3 times.",
-            initialCode: `# Use 3.times loop:\n`,
-            hint: "3.times { puts 'Ruby' }",
-            solution: '3.times do\n  puts "Ruby"\nend',
-            validate: (out) => (out.match(/Ruby/g) || []).length >= 3
-          },
-          {
-            stepNumber: 42,
-            level: "Core Practice",
-            title: "42. Transforming with .map",
-            prompt: "Use <code>.map</code> on <code>[1, 2, 3]</code> to double each value and print the mapped array.",
-            initialCode: `nums = [1, 2, 3]\n# Map nums to double each:\n`,
-            hint: "doubled = nums.map { |n| n * 2 }\nputs doubled",
-            solution: "nums = [1, 2, 3]\ndoubled = nums.map { |n| n * 2 }\nputs doubled",
-            validate: (out) => out.includes("2") && out.includes("6")
-          },
-          {
-            stepNumber: 43,
-            level: "Core Practice",
-            title: "43. Filtering with .select",
-            prompt: "Use <code>.select</code> on <code>[1, 2, 3, 4, 5, 6]</code> to pick even numbers (<code>n % 2 == 0</code>) and print them.",
-            initialCode: `numbers = [1, 2, 3, 4, 5, 6]\n`,
-            hint: "evens = numbers.select { |n| n % 2 == 0 }\nputs evens",
-            solution: "numbers = [1, 2, 3, 4, 5, 6]\nevens = numbers.select { |n| n % 2 == 0 }\nputs evens",
-            validate: (out) => out.includes("2") && out.includes("4") && out.includes("6")
-          },
-          {
-            stepNumber: 44,
-            level: "Core Practice",
-            title: "44. Accumulating with .reduce",
-            prompt: "Sum array <code>vals = [10, 20, 30]</code> using <code>.reduce(0) { |sum, n| sum + n }</code> and print total.",
-            initialCode: `vals = [10, 20, 30]\n`,
-            hint: "puts vals.reduce(0) { |sum, n| sum + n }",
-            solution: "vals = [10, 20, 30]\nputs vals.reduce(0) { |sum, n| sum + n }",
-            validate: (out) => out.includes("60")
-          },
-          {
-            stepNumber: 45,
-            level: "Challenge",
-            title: "45. Each with Index",
-            prompt: "Given <code>fruits = ['Apple', 'Banana', 'Cherry']</code>, use <code>.each_with_index</code> to output each fruit and its index formatted as <code>'Fruit: Apple, Index: 0'</code> on separate lines.",
-            initialCode: `fruits = ["Apple", "Banana", "Cherry"]\n`,
-            hint: 'fruits.each_with_index { |f, i| puts "Fruit: #{f}, Index: #{i}" }',
-            solution: 'fruits = ["Apple", "Banana", "Cherry"]\nfruits.each_with_index { |f, i| puts "Fruit: #{f}, Index: #{i}" }',
-            validate: (out) => out.includes("Fruit: Apple, Index: 0") && out.includes("Fruit: Cherry, Index: 2")
-          }
-        ]
-      },
-      {
-        id: 10,
-        title: "Object-Oriented Programming (OOP)",
-        duration: "35 min",
-        theory: `
-          <p>Ruby is a pure object-oriented language: everything in Ruby is an object. Classes are defined using the <code>class</code> keyword and ended with <code>end</code>.</p>
-          <h4 class="text-xs font-bold text-slate-200 mt-2">Class Concepts:</h4>
-          <ul class="list-disc pl-5 space-y-1">
-            <li><code>initialize</code>: The constructor method called automatically when creating a new object with <code>.new</code>.</li>
-            <li><code>@variable</code>: Instance variables that represent the state of an object.</li>
-            <li><code>attr_accessor</code>: Auto-generates getter and setter methods for instance variables.</li>
-            <li><code>&lt;</code>: Used for inheritance, allowing a subclass to inherit behavior from a superclass.</li>
-          </ul>
-        `,
-        quiz: {
-          question: "Which method is the constructor automatically executed when calling ClassName.new?",
-          options: ["new", "constructor", "initialize", "create"],
-          correct: 2,
-          rationale: "The <code>initialize</code> method is the constructor in Ruby classes."
-        },
-        exercises: [
-          {
-            stepNumber: 46,
-            level: "Warm-Up",
-            title: "46. Defining a Class",
-            prompt: "Define a class named <code>Book</code> with an empty body (only <code>class Book</code> and <code>end</code>), then print its class using <code>puts Book</code>.",
-            initialCode: `# Define class Book here:\n`,
-            hint: "class Book\nend\nputs Book",
-            solution: "class Book\nend\nputs Book",
-            validate: (out) => out.includes("Book")
-          },
-          {
-            stepNumber: 47,
-            level: "Core Practice",
-            title: "47. Instance Variables",
-            prompt: "Create a class <code>User</code> with an <code>initialize(name)</code> method that assigns <code>name</code> to instance variable <code>@name</code>. Provide a getter method <code>name</code> returning <code>@name</code>. Create instance <code>u = User.new('Alice')</code> and <code>puts u.name</code>.",
-            initialCode: `# Define User class:\n`,
-            hint: "class User\n  def initialize(name)\n    @name = name\n  end\n  def name\n    @name\n  end\nend\nu = User.new('Alice')\nputs u.name",
-            solution: "class User\n  def initialize(name)\n    @name = name\n  end\n  def name\n    @name\n  end\nend\nu = User.new('Alice')\nputs u.name",
-            validate: (out) => out.includes("Alice")
-          },
-          {
-            stepNumber: 48,
-            level: "Core Practice",
-            title: "48. Attribute Accessors",
-            prompt: "Use <code>attr_accessor :title</code> inside a <code>Book</code> class. Create a book instance, set its title to <code>'Ruby'</code>, and print it using <code>puts book.title</code>.",
-            initialCode: `class Book\n  # Add attr_accessor here\nend\n`,
-            hint: "class Book\n  attr_accessor :title\nend\nb = Book.new\nb.title = 'Ruby'\nputs b.title",
-            solution: "class Book\n  attr_accessor :title\nend\nb = Book.new\nb.title = 'Ruby'\nputs b.title",
-            validate: (out) => out.includes("Ruby")
-          },
-          {
-            stepNumber: 49,
-            level: "Core Practice",
-            title: "49. Instance Methods",
-            prompt: "Define an instance method <code>describe</code> inside <code>Dog</code> class that returns <code>'Woof!'</code>. Create a dog instance and print the result of calling <code>describe</code>.",
-            initialCode: `class Dog\n  # Add describe method:\nend\n`,
-            hint: "class Dog\n  def describe\n    'Woof!'\n  end\nend\nd = Dog.new\nputs d.describe",
-            solution: "class Dog\n  def describe\n    'Woof!'\n  end\nend\nd = Dog.new\nputs d.describe",
-            validate: (out) => out.includes("Woof!")
-          },
-          {
-            stepNumber: 50,
-            level: "Challenge",
-            title: "50. Class Inheritance",
-            prompt: "Create a subclass <code>Cat</code> inheriting from <code>Animal</code> (which has method <code>speak</code> returning <code>'Hello'</code>). Override <code>speak</code> in <code>Cat</code> to return <code>'Meow'</code>, instantiate <code>Cat</code>, and print its <code>speak</code> output.",
-            initialCode: `class Animal\n  def speak\n    "Hello"\n  end\nend\n\n# Define Cat inheriting from Animal:\n`,
-            hint: "class Cat < Animal\n  def speak\n    'Meow'\n  end\nend\nc = Cat.new\nputs c.speak",
-            solution: 'class Animal\n  def speak\n    "Hello"\n  end\nend\nclass Cat < Animal\n  def speak\n    "Meow"\n  end\nend\nc = Cat.new\nputs c.speak',
-            validate: (out) => out.includes("Meow")
-          }
-        ]
-      }
-    ];
-
-    // Helper functions for Javascript to emulate Ruby syntax
-    function defineHelper(proto, name, fn) {
-      Object.defineProperty(proto, name, {
-        value: fn,
-        writable: true,
-        enumerable: false,
-        configurable: true
-      });
-    }
-
-    defineHelper(Array.prototype, 'first', function() { return this[0]; });
-    defineHelper(Array.prototype, 'last', function() { return this[this.length - 1]; });
-    defineHelper(Array.prototype, 'sort', function() { return [...this].sort((a,b) => (a > b ? 1 : a < b ? -1 : 0)); });
-    defineHelper(Array.prototype, 'include_q', function(x) { return this.includes(x); });
-    defineHelper(Array.prototype, 'compact', function() { return this.filter(x => x !== null && x !== undefined); });
-    defineHelper(Array.prototype, 'uniq', function() { return [...new Set(this)]; });
-    defineHelper(Array.prototype, 'select', function(cb) { return this.filter(cb); });
-    defineHelper(Array.prototype, 'each_with_index', function(cb) {
-      for (let i = 0; i < this.length; i++) {
-        cb(this[i], i);
-      }
-    });
-    defineHelper(Array.prototype, 'reduce', function(init, cb) {
-      let startIdx = 0;
-      let accumulator = init;
-      if (typeof init === 'string' && cb === undefined) {
-        cb = init;
-        accumulator = this[0];
-        startIdx = 1;
-      } else if (cb === undefined && typeof init === 'function') {
-        cb = init;
-        accumulator = this[0];
-        startIdx = 1;
-      }
-      
-      if (typeof cb === 'string') {
-        let sym = cb.replace(/"/g, '').replace(/'/g, '');
-        if (sym === '+') cb = (acc, x) => acc + x;
-        else if (sym === '-') cb = (acc, x) => acc - x;
-        else if (sym === '*') cb = (acc, x) => acc * x;
-        else if (sym === '/') cb = (acc, x) => acc / x;
-      }
-      
-      for (let i = startIdx; i < this.length; i++) {
-        accumulator = cb(accumulator, this[i]);
-      }
-      return accumulator;
-    });
-
-    defineHelper(Number.prototype, 'abs', function() { return Math.abs(this); });
-    defineHelper(Number.prototype, 'to_f', function() { return parseFloat(this); });
-    defineHelper(Number.prototype, 'times', function(cb) {
-      for (let i = 0; i < this; i++) {
-        cb(i);
-      }
-    });
-
-    defineHelper(String.prototype, 'upcase', function() { return this.toUpperCase(); });
-    defineHelper(String.prototype, 'upcase_b', function() { return this.toUpperCase(); });
-    defineHelper(String.prototype, 'reverse', function() { return this.split('').reverse().join(''); });
-    defineHelper(String.prototype, 'strip', function() { return this.trim(); });
-    defineHelper(String.prototype, 'to_i', function() { return parseInt(this, 10) || 0; });
-
-    defineHelper(Object.prototype, 'keys', function() { return Object.keys(this); });
-    defineHelper(Object.prototype, 'key_q', function(k) { return this.hasOwnProperty(k); });
-    defineHelper(Object.prototype, 'merge', function(other) { return { ...this, ...other }; });
-    defineHelper(Object.prototype, 'fetch', function(k, fallback) { return this.hasOwnProperty(k) ? this[k] : fallback; });
-
-    // Ruby to Javascript Transpiler
-    function transpileRubyToJs(rubyCode) {
-      let lines = rubyCode.split('\n');
-      let jsLines = [];
-      let stack = [];
-      
-      for (let i = 0; i < lines.length; i++) {
-        let line = lines[i];
-        let trimmed = line.trim();
-        let indent = line.match(/^\s*/)[0];
-        
-        if (trimmed.startsWith('#') || trimmed === "") {
-          jsLines.push(line);
-          continue;
-        }
-        
-        if (trimmed.startsWith("attr_accessor") || trimmed.startsWith("attr_reader") || trimmed.startsWith("attr_writer")) {
-          jsLines.push(indent + "// " + trimmed);
-          continue;
-        }
-        
-        if (trimmed === "end") {
-          let top = stack.pop();
-          if (top === "class" || top === "def" || top === "control") {
-            jsLines.push(indent + "}");
-          } else if (top === "block") {
-            jsLines.push(indent + "});");
-          } else {
-            jsLines.push(indent + "}");
-          }
-          continue;
-        }
-        
-        let classMatch = trimmed.match(/^class\s+(\w+)(?:\s*<\s*(\w+))?/);
-        if (classMatch) {
-          stack.push("class");
-          let className = classMatch[1];
-          let parentName = classMatch[2];
-          if (parentName) {
-            jsLines.push(indent + `class ${className} extends ${parentName} {`);
-          } else {
-            jsLines.push(indent + `class ${className} {`);
-          }
-          continue;
-        }
-        
-        let defMatch = trimmed.match(/^def\s+([\w\?\!]+)\s*(?:\(([^)]*)\))?/);
-        if (defMatch) {
-          stack.push("def");
-          let name = defMatch[1];
-          let args = defMatch[2] || "";
-          name = name.replace("?", "_q").replace("!", "_b");
-          
-          let insideClass = stack.includes("class");
-          if (name === "initialize") {
-            jsLines.push(indent + `constructor(${args}) {`);
-          } else if (insideClass) {
-            jsLines.push(indent + `${name}(${args}) {`);
-          } else {
-            jsLines.push(indent + `${name} = function(${args}) {`);
-          }
-          continue;
-        }
-        
-        let ifMatch = trimmed.match(/^(if|unless|case)\s+([^\n]+)/);
-        if (ifMatch && !trimmed.endsWith("if") && !trimmed.endsWith("unless")) {
-          stack.push("control");
-          let keyword = ifMatch[1];
-          let cond = ifMatch[2];
-          
-          cond = cond.replace(/@(\w+)/g, "this.$1");
-          cond = cond.replace(/:(\w+)/g, '"$1"');
-          
-          if (keyword === "if") {
-            jsLines.push(indent + `if (${cond}) {`);
-          } else if (keyword === "unless") {
-            jsLines.push(indent + `if (!(${cond})) {`);
-          } else if (keyword === "case") {
-            jsLines.push(indent + `switch (${cond}) {`);
-          }
-          continue;
-        }
-        
-        if (trimmed === "else") {
-          jsLines.push(indent + "} else {");
-          continue;
-        }
-        let elsifMatch = trimmed.match(/^elsif\s+([^\n]+)/);
-        if (elsifMatch) {
-          let cond = elsifMatch[1].replace(/@(\w+)/g, "this.$1").replace(/:(\w+)/g, '"$1"');
-          jsLines.push(indent + `} else if (${cond}) {`);
-          continue;
-        }
-        let whenMatch = trimmed.match(/^when\s+([^\n]+)/);
-        if (whenMatch) {
-          let val = whenMatch[1].replace(/@(\w+)/g, "this.$1").replace(/:(\w+)/g, '"$1"');
-          jsLines.push(indent + `case ${val}:`);
-          continue;
-        }
-        
-        let doMatch = trimmed.match(/^([^\n]+)\s+do(?:\s*\|([^|]+)\|)?/);
-        if (doMatch) {
-          stack.push("block");
-          let expr = doMatch[1];
-          let blockArgs = doMatch[2] || "";
-          
-          expr = expr.replace(/@(\w+)/g, "this.$1");
-          expr = expr.replace(/:(\w+)/g, '"$1"');
-          
-          jsLines.push(indent + `${expr}((${blockArgs}) => {`);
-          continue;
-        }
-        
-        let processed = line;
-        processed = processed.replace(/@(\w+)/g, "this.$1");
-        processed = processed.replace(/:(\w+)/g, '"$1"');
-        processed = processed.replace(/=>/g, ":");
-        
-        processed = processed.replace(/(\w+)\s*<<\s*([^\n;]+)/g, "$1.push($2)");
-        
-        processed = processed.replace(/\.([\w_]+)\?/g, ".$1_q");
-        processed = processed.replace(/\.([\w_]+)\!/g, ".$1_b");
-        processed = processed.replace(/([\w_]+)\?/g, "$1_q");
-        processed = processed.replace(/([\w_]+)\!/g, "$1_b");
-        
-        processed = processed.replace(/\{\s*\|([^|]+)\|\s*([^}]+)\}/g, "(($1) => { return $2; })");
-        processed = processed.replace(/\{\s*([^}]+)\}/g, "(() => { return $1; })");
-        
-        let guardMatch = processed.match(/^([^\n]+)\s+(if|unless)\s+([^\n]+)$/);
-        if (guardMatch && !trimmed.startsWith("if") && !trimmed.startsWith("unless")) {
-          let action = guardMatch[1];
-          let kw = guardMatch[2];
-          let cond = guardMatch[3];
-          if (kw === "if") {
-            processed = indent + `if (${cond}) { ${action}; }`;
-          } else {
-            processed = indent + `if (!(${cond})) { ${action}; }`;
-          }
-        }
-        
-        jsLines.push(processed);
-      }
-      
-      return jsLines.join('\n');
-    }
+    const { DefaultRubyVM } = window["ruby-wasm-wasi"];
 
     // STATE VARIABLES
     let currentStep = parseInt(localStorage.getItem('fcc_ruby_current_step')) || 1;
     let completedSteps = new Set(JSON.parse(localStorage.getItem('fcc_ruby_completed')) || []);
     let editorCodes = JSON.parse(localStorage.getItem('fcc_ruby_editor_codes')) || {};
     let quizAnswers = JSON.parse(localStorage.getItem('fcc_ruby_quiz_answers')) || {};
+    let currentActiveFile = null;
+    let cmdCount = 1;
 
-    // PERSISTENT IRB SESSION CONTEXT
-    const contextTarget = {};
-    const irbContext = new Proxy(contextTarget, {
-      has(target, key) {
-        if (key === Symbol.unscopables) return false;
-        return true;
-      },
-      get(target, key) {
-        if (key === Symbol.unscopables) return undefined;
-        if (key in target) return target[key];
-        if (key in window) return window[key];
-        return undefined;
-      },
-      set(target, key, value) {
-        target[key] = value;
-        return true;
+    const lessonsData = [...lessonsDataPart1, ...lessonsDataPart2, ...lessonsDataPart3];
+
+    // BOOTSTRAP RAILS MOCK EMULATOR IN RUBY
+    const railsBootstrapCode = `
+      require 'stringio'
+      require 'erb'
+      require 'json'
+
+      $database = {}
+      $templates = {}
+      $table_columns = {}
+      $mock_files = {
+        "config.json" => '{"database": "production", "port": 5432}'
       }
-    });
+      $background_jobs = []
+      $sent_emails = []
+      
+      # Mock File System
+      class File
+        def self.read(path)
+          $mock_files[path] || raise("Errno::ENOENT: No such file or directory - #{path}")
+        end
+        def self.write(path, content)
+          $mock_files[path] = content
+          content
+        end
+        def self.exist?(path)
+          $mock_files.key?(path)
+        end
+        def self.open(path, mode = 'r')
+          f = MockFile.new(path, mode)
+          if block_given?
+            yield f
+          else
+            f
+          end
+        end
+      end
+      class MockFile
+        def initialize(path, mode)
+          @path = path
+          @mode = mode
+        end
+        def write(content)
+          if @mode.include?('a')
+            $mock_files[@path] ||= ""
+            $mock_files[@path] += content
+          else
+            $mock_files[@path] = content
+          end
+        end
+      end
 
-    let irbLogs = [];
-    function irbPuts(...args) {
-      args.forEach(arg => {
-        irbLogs.push(arg === null || arg === undefined ? "" : arg.toString());
-      });
-    }
-    function irbPrint(...args) {
-      let str = args.map(arg => arg === null || arg === undefined ? "" : arg.toString()).join("");
-      if (irbLogs.length > 0) {
-        irbLogs[irbLogs.length - 1] += str;
-      } else {
-        irbLogs.push(str);
-      }
-    }
-    function irbP(...args) {
-      args.forEach(arg => {
-        irbLogs.push(JSON.stringify(arg));
-      });
-    }
+      class Dir
+        def self.glob(pattern)
+          ext = pattern.sub("*", "")
+          $mock_files.keys.select { |k| k.end_with?(ext) }
+        end
+      end
 
-    function runIrbCode(rubyCode) {
-      irbLogs = [];
-      let jsCode = transpileRubyToJs(rubyCode);
-      try {
-        const runner = new Function('context', 'puts', 'print', 'p', `
-          with(context) {
-            return eval(${JSON.stringify(jsCode)});
+      # Mock RSpec
+      module RSpec
+        class << self
+          attr_accessor :examples, :failures
+        end
+        class ExampleGroup
+          def initialize(description)
+            @description = description
+          end
+          def it(desc, &block)
+            RSpec.examples += 1
+            begin
+              instance_eval(&block)
+              puts "  - #{desc} (PASSED)"
+            rescue Exception => e
+              RSpec.failures += 1
+              puts "  - #{desc} (FAILED: #{e.message})"
+            end
+          end
+          def expect(actual)
+            Expectation.new(actual)
+          end
+        end
+        class Expectation
+          def initialize(actual)
+            @actual = actual
+          end
+          def to(matcher)
+            matcher.call(@actual)
+          end
+        end
+        def self.eq(expected)
+          ->(actual) {
+            raise "expected: #{expected.inspect}, got: #{actual.inspect}" unless actual == expected
           }
-        `);
-        let result = runner(irbContext, irbPuts, irbPrint, irbP);
-        return {
-          success: true,
-          stdout: irbLogs.join('\n'),
-          result: result === undefined ? "nil" : (typeof result === 'string' ? `"${result}"` : JSON.stringify(result))
-        };
+        end
+        def self.describe(klass, &block)
+          self.examples = 0
+          self.failures = 0
+          puts "RSpec: #{klass}"
+          group = ExampleGroup.new(klass.to_s)
+          group.instance_eval(&block)
+          puts "\nFinished: #{self.examples} examples, #{self.failures} failures"
+        end
+      end
+      def describe(klass, &block)
+        RSpec.describe(klass, &block)
+      end
+
+      # Mock ActiveJob
+      module ActiveJob
+        class Base
+          class << self
+            def perform_later(*args)
+              $background_jobs ||= []
+              $background_jobs << { job: self.name, args: args, status: "queued" }
+              puts "[ActiveJob] Enqueued #{self.name} to default queue with arguments: #{args.inspect}"
+            end
+          end
+        end
+      end
+
+      # Mock ActionMailer
+      module ActionMailer
+        class Base
+          class << self
+            def mail(options = {})
+              $sent_emails ||= []
+              $sent_emails << {
+                from: options[:from] || "noreply@app.com",
+                to: options[:to],
+                subject: options[:subject],
+                body: options[:body] || "Default email body"
+              }
+              puts "[Mailer] Email sent to #{options[:to]} (Subject: '#{options[:subject]}')"
+            end
+          end
+          def mail(options = {})
+            self.class.mail(options)
+          end
+        end
+      end
+      $templates = {}
+      $table_columns = {}
+
+      module ActiveRecord
+        class Base
+          class << self
+            attr_accessor :records, :table_name, :associations, :validations, :callbacks
+            
+            def inherited(subclass)
+              subclass.records = []
+              subclass.associations = {}
+              subclass.validations = []
+              subclass.callbacks = Hash.new { |h, k| h[k] = [] }
+              subclass.table_name = subclass.name.downcase + "s"
+              $database[subclass.table_name] = subclass.records
+            end
+            
+            def has_many(name, options = {})
+              self.associations[name] = { type: :has_many, class_name: options[:class_name] || name.to_s.sub(/s$/, '').capitalize }
+              define_method(name) do
+                target_class = Object.const_get(self.class.associations[name][:class_name])
+                target_class.where("#{self.class.name.downcase}_id".to_sym => self.id)
+              end
+            end
+            
+            def belongs_to(name, options = {})
+              self.associations[name] = { type: :belongs_to, class_name: options[:class_name] || name.to_s.capitalize }
+              define_method(name) do
+                target_class = Object.const_get(self.class.associations[name][:class_name])
+                target_class.find(self.send("#{name}_id"))
+              end
+            end
+            
+            def validates(attr, options = {})
+              self.validations << { attr: attr, options: options }
+            end
+            
+            def before_save(method_name)
+              self.callbacks[:before_save] << method_name
+            end
+            def after_create(method_name)
+              self.callbacks[:after_create] << method_name
+            end
+            
+            def create(attrs = {})
+              obj = new(attrs)
+              obj.save
+              obj
+            end
+            
+            def create!(attrs = {})
+              obj = new(attrs)
+              raise "Validation Failed: #{obj.errors.join(', ')}" unless obj.save
+              obj
+            end
+            
+            def all
+              Relation.new(self, self.records)
+            end
+            
+            def where(conditions = {})
+              all.where(conditions)
+            end
+            
+            def order(clause)
+              all.order(clause)
+            end
+            
+            def find(id)
+              rec = self.records.find { |r| r.id == id.to_i }
+              raise "Record not found" unless rec
+              rec
+            end
+            
+            def count
+              self.records.size
+            end
+            
+            def scope(name, body)
+              define_singleton_method(name) { body.call }
+            end
+          end
+          
+          attr_accessor :attributes, :errors
+          
+          def initialize(attrs = {})
+            @errors = []
+            cols = $table_columns[self.class.table_name] || [:id]
+            @attributes = {}
+            cols.each { |c| @attributes[c] = nil }
+            @attributes[:id] = (self.class.records.map(&:id).max || 0) + 1
+            
+            attrs.each do |k, v|
+              @attributes[k.to_sym] = v
+            end
+            
+            cols.each do |k|
+              self.class.send(:define_method, k) { @attributes[k.to_sym] }
+              self.class.send(:define_method, "#{k}=") { |val| @attributes[k.to_sym] = val }
+            end
+          end
+          
+          def id
+            @attributes[:id]
+          end
+          
+          def method_missing(m, *args, &block)
+            if m.to_s.end_with?('=')
+              key = m.to_s.chomp('=').to_sym
+              @attributes[key] = args[0]
+            elsif @attributes.key?(m.to_sym)
+              @attributes[m.to_sym]
+            else
+              super
+            end
+          end
+          
+          def save
+            @errors = []
+            self.class.validations.each do |v|
+              attr = v[:attr]
+              opts = v[:options]
+              val = @attributes[attr.to_sym]
+              if opts[:presence] && (val.nil? || val.to_s.strip.empty?)
+                @errors << "#{attr} can't be blank"
+              end
+              if opts[:uniqueness]
+                duplicate = self.class.records.any? { |r| r != self && r.attributes[attr.to_sym] == val }
+                @errors << "#{attr} must be unique" if duplicate
+              end
+            end
+            
+            return false if @errors.any?
+            
+            self.class.callbacks[:before_save].each { |cb| self.send(cb) }
+            
+            is_new = !self.class.records.include?(self)
+            if is_new
+              self.class.records << self
+            end
+            
+            if is_new
+              self.class.callbacks[:after_create].each { |cb| self.send(cb) }
+            end
+            
+            true
+          end
+        end
+        
+        class Relation
+          include Enumerable
+          
+          def initialize(klass, records)
+            @klass = klass
+            @records = records
+          end
+          
+          def each(&block)
+            @records.each(&block)
+          end
+          
+          def where(conditions = {})
+            filtered = @records.select do |rec|
+              conditions.all? do |k, v|
+                rec.attributes[k.to_sym] == v
+              end
+            end
+            Relation.new(@klass, filtered)
+          end
+          
+          def order(clause)
+            field, dir = clause.to_s.split(' ')
+            dir ||= 'asc'
+            sorted = @records.sort_by { |rec| rec.attributes[field.to_sym] || 0 }
+            sorted.reverse! if dir.downcase == 'desc'
+            Relation.new(@klass, sorted)
+          end
+          
+          def count
+            @records.size
+          end
+          
+          def sum(field)
+            @records.map { |r| r.attributes[field.to_sym].to_i }.sum
+          end
+          
+          def to_a
+            @records
+          end
+        end
+        
+        class Migration
+          class << self
+            def create_table(name)
+              $table_columns[name.to_s] = [:id]
+              yield TableDefinition.new(name.to_s)
+            end
+          end
+          
+          class TableDefinition
+            def initialize(table_name)
+              @table_name = table_name
+            end
+            def string(col_name)
+              $table_columns[@table_name] << col_name.to_sym
+            end
+            def text(col_name)
+              $table_columns[@table_name] << col_name.to_sym
+            end
+            def integer(col_name)
+              $table_columns[@table_name] << col_name.to_sym
+            end
+            def boolean(col_name)
+              $table_columns[@table_name] << col_name.to_sym
+            end
+            def datetime(col_name)
+              $table_columns[@table_name] << col_name.to_sym
+            end
+          end
+        end
+      end
+
+      class ApplicationController
+        attr_accessor :params
+        
+        def initialize(params = {})
+          @params = params
+        end
+        
+        def self.before_actions
+          @before_actions ||= []
+        end
+        
+        def self.before_action(method_name, options = {})
+          self.before_actions << { method: method_name, options: options }
+        end
+        
+        def run_callbacks(action)
+          self.class.before_actions.each do |cb|
+            only = cb[:options][:only]
+            except = cb[:options][:except]
+            if only
+              next unless Array(only).map(&:to_sym).include?(action.to_sym)
+            end
+            if except
+              next if Array(except).map(&:to_sym).include?(action.to_sym)
+            end
+            self.send(cb[:method])
+          end
+        end
+        
+        def render(template_name)
+          template = $templates[template_name]
+          raise "Template not found: #{template_name}" unless template
+          ERB.new(template).result(binding)
+        end
+      end
+
+      def form_with(options = {})
+        "<form action='#{options[:url]}' method='POST'>" + (block_given? ? yield : "") + "</form>"
+      end
+      def link_to(name, path)
+        "<a href='#{path}' class='text-ruby-400 underline font-semibold'>#{name}</a>"
+      end
+
+      module Rails
+        class Router
+          class << self
+            attr_accessor :routes
+            
+            def draw(&block)
+              @routes = []
+              instance_eval(&block)
+            end
+            
+            def get(path, options)
+              @routes << { method: :get, path: path, to: options[:to] }
+            end
+            
+            def post(path, options)
+              @routes << { method: :post, path: path, to: options[:to] }
+            end
+            
+            def resources(name, options = {})
+              only = options[:only]
+              actions = [:index, :show, :new, :create]
+              actions = Array(only) if only
+              
+              get "/#{name}", to: "#{name}#index" if actions.include?(:index)
+              get "/#{name}/new", to: "#{name}#new" if actions.include?(:new)
+              get "/#{name}/:id", to: "#{name}#show" if actions.include?(:show)
+              post "/#{name}", to: "#{name}#create" if actions.include?(:create)
+            end
+          end
+        end
+        
+        class Application
+          def self.routes
+            Router
+          end
+        end
+      end
+
+      def dispatch_request(method, path, params = {})
+        route = Rails::Router.routes.find do |r|
+          pattern = r[:path].gsub(/:id/, '(\\\\d+)')
+          r[:method].to_s.downcase == method.to_s.downcase && path =~ /^#{pattern}$/
+        end
+        
+        return "Routing Error: No route matches [#{method.upcase}] #{path}" unless route
+        
+        controller_part, action_name = route[:to].split('#')
+        controller_class_name = controller_part.split('_').map(&:capitalize).join + "Controller"
+        
+        unless Object.const_defined?(controller_class_name)
+          return "Controller Error: #{controller_class_name} is not defined."
+        end
+        
+        controller_class = Object.const_get(controller_class_name)
+        
+        path_match = path.match(route[:path].gsub(/:id/, '(\\\\d+)'))
+        if path_match && route[:path].include?(':id')
+          params[:id] = path_match[1]
+        end
+        
+        controller = controller_class.new(params)
+        
+        if controller.respond_to?(:run_callbacks)
+          controller.run_callbacks(action_name)
+        end
+        
+        response_content = controller.send(action_name)
+        
+        if !response_content.is_a?(String)
+          template_path = "#{controller_part}/#{action_name}"
+          response_content = controller.render(template_path)
+        end
+        
+        response_content
+      rescue Exception => e
+        "Runtime Error during dispatch: #{e.class} - #{e.message}\\n#{e.backtrace.join('\\n')}"
+      end
+    `;
+
+    // INITIALIZE RUBY WASM VM
+    async function loadRubyWasm() {
+      const overlay = document.getElementById('vm-loader-overlay');
+      const bar = document.getElementById('vm-loader-bar');
+      const statusText = document.getElementById('vm-loader-text');
+      
+      try {
+        statusText.innerText = "Downloading WebAssembly compiler bundle...";
+        bar.style.width = '12%';
+        
+        const response = await fetch("https://cdn.jsdelivr.net/npm/@ruby/3.3-wasm-wasi@2.10.1/dist/ruby+stdlib.wasm");
+        if (!response.ok) throw new Error("Wasm file fetch failed");
+        
+        const reader = response.body.getReader();
+        const contentLength = +response.headers.get('Content-Length') || 14500000;
+        
+        let receivedLength = 0;
+        let chunks = [];
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          chunks.push(value);
+          receivedLength += value.length;
+          const pct = Math.round((receivedLength / contentLength) * 100);
+          bar.style.width = `${Math.min(pct * 0.8 + 12, 92)}%`;
+          statusText.innerText = `Downloading Ruby WASM: ${pct}% (${(receivedLength/1024/1024).toFixed(1)}MB)`;
+        }
+        
+        statusText.innerText = "Compiling WASM Interpreter...";
+        bar.style.width = '94%';
+        
+        let chunksAll = new Uint8Array(receivedLength);
+        let position = 0;
+        for (let chunk of chunks) {
+          chunksAll.set(chunk, position);
+          position += chunk.length;
+        }
+        
+        const wasmModule = await WebAssembly.compile(chunksAll.buffer);
+        statusText.innerText = "Bootstrapping state controllers...";
+        bar.style.width = '98%';
+        
+        const { vm } = await DefaultRubyVM(wasmModule);
+        window.rubyVM = vm;
+        
+        // Evaluate bootstrap code
+        window.rubyVM.eval(railsBootstrapCode);
+        
+        // Hide loader
+        overlay.classList.add('opacity-0');
+        setTimeout(() => overlay.remove(), 400);
+        
+        // Init course
+        loadStep(currentStep);
       } catch (err) {
-        return {
-          success: false,
-          error: err.message
-        };
+        statusText.innerText = `Bootstrap Error: ${err.message}`;
+        bar.classList.add('bg-rose-600');
+        console.error(err);
       }
     }
 
@@ -1329,12 +1043,12 @@
     function updateProgress() {
       const bar = document.getElementById('top-progress-bar');
       const text = document.getElementById('top-progress-text');
-      const pct = Math.round((completedSteps.size / 50) * 100);
+      const pct = Math.round((completedSteps.size / 168) * 100);
       bar.style.width = pct + '%';
       text.innerText = pct + '%';
 
       const certBtn = document.getElementById('view-cert-btn');
-      if (completedSteps.size >= 50) {
+      if (completedSteps.size >= 168) {
         certBtn.classList.remove('hidden');
       } else {
         certBtn.classList.add('hidden');
@@ -1357,7 +1071,7 @@
             <i class="fa-solid fa-chevron-down text-[10px] text-slate-500 transition-transform duration-200" id="chevron-${lesson.id}"></i>
             <div>
               <div class="text-xs font-semibold text-slate-200">${lesson.title}</div>
-              <div class="text-[10px] text-slate-400 font-mono">${lesson.duration} • 5 Steps</div>
+              <div class="text-[10px] text-slate-400 font-mono">${lesson.duration} • ${lesson.exercises.length} Steps</div>
             </div>
           </div>
         `;
@@ -1418,7 +1132,6 @@
       });
     }
 
-    // LINE NUMBERS
     const codeEditor = document.getElementById('code-editor');
     const lineNumbers = document.getElementById('line-numbers');
 
@@ -1433,7 +1146,12 @@
     }
 
     codeEditor.addEventListener('input', () => {
-      editorCodes[currentStep] = codeEditor.value;
+      if (currentStep >= 66) {
+        if (!editorCodes[currentStep]) editorCodes[currentStep] = {};
+        editorCodes[currentStep][currentActiveFile] = codeEditor.value;
+      } else {
+        editorCodes[currentStep] = codeEditor.value;
+      }
       localStorage.setItem('fcc_ruby_editor_codes', JSON.stringify(editorCodes));
       updateLineNumbers();
     });
@@ -1452,7 +1170,7 @@
       const { lesson, exercise } = details;
       
       // Update badge
-      document.getElementById('current-step-badge').innerText = `Step ${stepNum} / 50`;
+      document.getElementById('current-step-badge').innerText = `Step ${stepNum} / 168`;
       
       // Update instructions
       document.getElementById('step-lesson-title').innerText = `Lesson ${lesson.id}: ${lesson.title}`;
@@ -1465,33 +1183,103 @@
       document.getElementById('hint-panel').classList.add('hidden');
       document.getElementById('solution-panel').classList.add('hidden');
       document.getElementById('hint-text').innerHTML = exercise.hint;
-      document.getElementById('solution-code').innerText = exercise.solution;
       
-      // Load editor content
-      if (editorCodes[stepNum] !== undefined) {
-        codeEditor.value = editorCodes[stepNum];
+      // Load editor content based on step type (Ruby vs. Rails)
+      const tabRails = document.getElementById('tab-rails-btn');
+      const fileExplorer = document.getElementById('rails-file-explorer');
+      const editorMainTab = document.getElementById('editor-main-tab-label');
+
+      if (stepNum >= 66) {
+        tabRails.classList.remove('hidden');
+        fileExplorer.classList.remove('hidden');
+        
+        // Parse multi-files initialCode
+        if (!editorCodes[stepNum]) {
+          editorCodes[stepNum] = JSON.parse(JSON.stringify(exercise.initialCode));
+        }
+        
+        const files = Object.keys(editorCodes[stepNum]);
+        currentActiveFile = files[0];
+        editorMainTab.innerText = currentActiveFile;
+        codeEditor.value = editorCodes[stepNum][currentActiveFile];
+        
+        renderFileExplorerTabs(files);
       } else {
-        codeEditor.value = exercise.initialCode;
+        tabRails.classList.add('hidden');
+        fileExplorer.classList.add('hidden');
+        editorMainTab.innerText = "main.rb";
+        
+        if (editorCodes[stepNum] !== undefined) {
+          codeEditor.value = editorCodes[stepNum];
+        } else {
+          codeEditor.value = exercise.initialCode;
+        }
       }
       
+      // Setup default solution panel text
+      if (stepNum >= 66) {
+        let solText = "";
+        for (let path in exercise.initialCode) {
+          solText += `# --- FILE: ${path} ---\n`;
+          solText += exercise.solution + "\n\n";
+        }
+        document.getElementById('solution-code').innerText = exercise.solution;
+      } else {
+        document.getElementById('solution-code').innerText = exercise.solution;
+      }
+
       updateLineNumbers();
-      renderQuiz(lesson);
+      renderQuiz(exercise);
       updateProgress();
       renderCurriculumTree();
       
       // Enable/disable navigation buttons
       document.getElementById('prev-step-btn').disabled = (stepNum === 1);
-      document.getElementById('next-step-btn').disabled = false;
+      document.getElementById('next-step-btn').disabled = (stepNum === 168);
+      
+      // Switch back to editor tab on load
+      switchTab('editor');
     }
 
+    function renderFileExplorerTabs(files) {
+      const explorer = document.getElementById('rails-file-explorer');
+      explorer.innerHTML = files.map(file => {
+        const isActive = file === currentActiveFile;
+        return `
+          <button onclick="switchRailsFile('${file}')" class="px-3 py-1 rounded text-xs font-mono transition ${
+            isActive ? 'bg-slate-900 text-ruby-400 border border-ruby-800/40' : 'text-slate-400 hover:text-slate-200'
+          }">
+            <i class="fa-regular fa-file-code mr-1"></i> ${file.split('/').pop()}
+          </button>
+        `;
+      }).join('');
+    }
+
+    window.switchRailsFile = (file) => {
+      // Save current file text
+      if (!editorCodes[currentStep]) editorCodes[currentStep] = {};
+      editorCodes[currentStep][currentActiveFile] = codeEditor.value;
+      localStorage.setItem('fcc_ruby_editor_codes', JSON.stringify(editorCodes));
+
+      // Switch active
+      currentActiveFile = file;
+      document.getElementById('editor-main-tab-label').innerText = file;
+      codeEditor.value = editorCodes[currentStep][file];
+      updateLineNumbers();
+      
+      // Re-render tabs
+      const files = Object.keys(editorCodes[currentStep]);
+      renderFileExplorerTabs(files);
+    };
+
     // QUIZ RENDERER
-    function renderQuiz(lesson) {
+    function renderQuiz(exercise) {
       const container = document.getElementById('quiz-container');
       container.innerHTML = '';
       
-      const quiz = lesson.quiz;
+      const quiz = exercise.quiz;
       if (!quiz) {
-        container.innerHTML = '<p class="text-xs text-slate-400">No quiz for this lesson.</p>';
+        container.innerHTML = '<p class="text-xs text-slate-400">No quiz for this step.</p>';
         return;
       }
       
@@ -1500,7 +1288,7 @@
       questionDiv.innerHTML = quiz.question;
       container.appendChild(questionDiv);
       
-      const answeredCorrectly = quizAnswers[lesson.id] === true;
+      const answeredCorrectly = quizAnswers[exercise.stepNumber] === true;
       
       quiz.options.forEach((opt, idx) => {
         const btn = document.createElement('button');
@@ -1521,9 +1309,9 @@
           
           btn.onclick = () => {
             if (idx === quiz.correct) {
-              quizAnswers[lesson.id] = true;
+              quizAnswers[exercise.stepNumber] = true;
               localStorage.setItem('fcc_ruby_quiz_answers', JSON.stringify(quizAnswers));
-              renderQuiz(lesson);
+              renderQuiz(exercise);
               appendTerminalOutput(`\n[Quiz Success] Correct answer! ${quiz.rationale}`, 'text-emerald-400');
             } else {
               btn.className = `w-full text-left px-3 py-2 rounded-lg text-xs border transition flex items-center justify-between mb-2 bg-rose-950/40 border-rose-800 text-rose-300`;
@@ -1549,7 +1337,6 @@
       if (className) {
         termOutput.innerHTML += `<span class="${className}">${text}</span>`;
       } else {
-        // Safe escape
         const div = document.createElement('div');
         div.innerText = text;
         termOutput.innerHTML += div.innerHTML;
@@ -1558,54 +1345,93 @@
       termScreen.scrollTop = termScreen.scrollHeight;
     }
 
-    function runCode(isSubmit = false) {
-      const code = codeEditor.value;
-      const termOutput = document.getElementById('terminal-output');
-      termOutput.innerHTML = ''; // Clear terminal output
-      
-      appendTerminalOutput(`$ ruby main.rb\n`, 'text-slate-500');
-      
-      // Transpile and execute
-      let jsCode = transpileRubyToJs(code);
-      let logs = [];
-      
-      function puts(...args) {
-        args.forEach(arg => {
-          if (Array.isArray(arg)) {
-            logs.push(arg.join('\n'));
-          } else if (typeof arg === 'object' && arg !== null) {
-            logs.push(JSON.stringify(arg));
-          } else {
-            logs.push(arg === undefined || arg === null ? "" : arg.toString());
-          }
-        });
+    // CODE COMPILER & DISPATCHER
+    async function runCode(isSubmit = false) {
+      if (currentStep >= 66) {
+        // Save current active file
+        editorCodes[currentStep][currentActiveFile] = codeEditor.value;
       }
       
-      function print(...args) {
-        let str = args.map(arg => arg === null || arg === undefined ? "" : arg.toString()).join("");
-        if (logs.length > 0) {
-          logs[logs.length - 1] += str;
-        } else {
-          logs.push(str);
+      const termOutput = document.getElementById('terminal-output');
+      termOutput.innerHTML = '';
+      appendTerminalOutput(`$ ruby main.rb\n`, 'text-slate-500');
+
+      let compiledOutput = "";
+      
+      if (currentStep < 66) {
+        // Evaluate single file Ruby script
+        const code = codeEditor.value;
+        const runStr = `
+          $stdout = StringIO.new
+          $stderr = StringIO.new
+          $script_binding = binding
+          begin
+            $script_binding.eval(${JSON.stringify(code)})
+          rescue Exception => e
+            puts "Runtime Error: #{e.class} - #{e.message}"
+          end
+          $stdout.string
+        `;
+        try {
+          compiledOutput = window.rubyVM.eval(runStr).toString();
+          appendTerminalOutput(compiledOutput + '\n');
+        } catch (err) {
+          appendTerminalOutput(`Compilation Error: ${err.message}\n`, 'text-rose-500');
+        }
+      } else {
+        // Rails Course Compilation
+        const files = editorCodes[currentStep];
+        
+        // 1. Load view templates
+        for (let path in files) {
+          if (path.endsWith('.erb')) {
+            const tName = path.replace('app/views/', '').replace('.html.erb', '');
+            window.rubyVM.eval(`$templates['${tName}'] = ${JSON.stringify(files[path])}`);
+          }
+        }
+        
+        // 2. Concatenate Ruby models, migrations, controllers, and routes
+        let rubyConcat = "";
+        for (let path in files) {
+          if (path.endsWith('.rb')) {
+            rubyConcat += `\n# --- FILE: ${path} ---\n` + files[path] + '\n';
+          }
+        }
+        
+        const runStr = `
+          $stdout = StringIO.new
+          $stderr = StringIO.new
+          begin
+            eval(${JSON.stringify(rubyConcat)})
+          rescue Exception => e
+            puts "Rails Compiler Error: #{e.class} - #{e.message}"
+          end
+          $stdout.string
+        `;
+        
+        try {
+          compiledOutput = window.rubyVM.eval(runStr).toString();
+          if (compiledOutput.trim()) {
+            appendTerminalOutput(compiledOutput + '\n');
+          } else {
+            appendTerminalOutput("Rails compilation successful! No syntax errors.\n", "text-slate-400");
+          }
+          
+          // Execute default action routing
+          const defaultUrl = getExerciseByStep(currentStep).exercise.testUrl || "/posts";
+          document.getElementById('address-bar-input').value = defaultUrl;
+          
+          // Switch to rails inspector tab
+          switchTab('rails');
+          dispatchRailsMockRequest();
+
+          // Sync background workers and mailboxes
+          syncSimulatedSystems();
+        } catch (err) {
+          appendTerminalOutput(`Rails Load Error: ${err.message}\n`, 'text-rose-500');
         }
       }
-      
-      function p(...args) {
-        args.forEach(arg => {
-          logs.push(JSON.stringify(arg));
-        });
-      }
-      
-      try {
-        const runner = new Function('puts', 'print', 'p', jsCode);
-        runner(puts, print, p);
-      } catch (err) {
-        logs.push("Runtime Error: " + err.message);
-      }
-      
-      const resultStr = logs.join('\n');
-      appendTerminalOutput(resultStr + '\n');
-      
+
       if (isSubmit) {
         const details = getExerciseByStep(currentStep);
         if (!details) return;
@@ -1613,7 +1439,7 @@
         
         let success = false;
         try {
-          success = exercise.validate(resultStr, code);
+          success = await exercise.validate(compiledOutput, codeEditor.value);
         } catch (e) {
           success = false;
         }
@@ -1627,8 +1453,8 @@
           renderCurriculumTree();
           updateProgress();
           
-          if (currentStep === 50) {
-            // Trigger Certificate!
+          if (currentStep === 168) {
+            // Award Certificate!
             document.getElementById('cert-modal').classList.remove('hidden');
             document.getElementById('cert-modal').classList.add('flex');
             document.getElementById('cert-date').innerText = new Date().toLocaleDateString();
@@ -1639,144 +1465,196 @@
       }
     }
 
+    // STATEFUL IRB RUNNER
+    function runIrbCode(rubyCode) {
+      const runStr = `
+        $stdout = StringIO.new
+        $irb_binding ||= binding
+        begin
+          $irb_val = $irb_binding.eval(${JSON.stringify(rubyCode)})
+        rescue Exception => e
+          puts "Error: #{e.class} - #{e.message}"
+          $irb_val = nil
+        end
+        JSON.generate([$stdout.string, $irb_val.inspect])
+      `;
+      try {
+        const resJson = window.rubyVM.eval(runStr).toString();
+        const [stdout, valInspect] = JSON.parse(resJson);
+        return { success: true, stdout, result: valInspect };
+      } catch (err) {
+        return { success: false, error: err.message };
+      }
+    }
+
+    // RAILS SIMULATOR CONTROLLER DISPATCHER
+    function dispatchRailsMockRequest() {
+      const method = document.getElementById('address-method').innerText;
+      const path = document.getElementById('address-bar-input').value;
+      const renderScreen = document.getElementById('web-render-screen');
+      
+      // Highlight flows sequentially
+      const nodes = ['flow-route', 'flow-ctrl', 'flow-db', 'flow-view', 'flow-res'];
+      nodes.forEach(n => document.getElementById(n).classList.remove('flow-active'));
+      
+      nodes.forEach((n, idx) => {
+        setTimeout(() => {
+          document.getElementById(n).classList.add('flow-active');
+          if (n === 'flow-db') {
+            renderDatabaseInspector();
+          }
+          if (n === 'flow-res') {
+            try {
+              const resHtml = window.rubyVM.eval(`dispatch_request("${method}", "${path}")`).toString();
+              renderScreen.innerHTML = resHtml;
+            } catch (e) {
+              renderScreen.innerHTML = `<div class="text-rose-500 font-mono text-xs">Dispatch Error: ${e.message}</div>`;
+            }
+          }
+        }, idx * 160);
+      });
+    }
+
+    function renderDatabaseInspector() {
+      const tablesList = document.getElementById('db-tables-list');
+      const tableData = document.getElementById('db-table-data');
+      
+      try {
+        const dbJson = window.rubyVM.eval("JSON.generate($database.transform_values { |v| v.map(&:attributes) })").toString();
+        const db = JSON.parse(dbJson);
+        const tNames = Object.keys(db);
+        
+        if (tNames.length === 0) {
+          tablesList.innerHTML = '';
+          tableData.innerHTML = '<span class="text-slate-500 italic">No tables created yet. Run migrations or create records.</span>';
+          return;
+        }
+        
+        let activeT = window.currentDbTable || tNames[0];
+        if (!tNames.includes(activeT)) activeT = tNames[0];
+        window.currentDbTable = activeT;
+        
+        tablesList.innerHTML = tNames.map(t => `
+          <button onclick="window.switchDbTable('${t}')" class="px-2 py-0.5 rounded text-[10px] transition ${
+            t === activeT ? 'bg-ruby-950 text-ruby-400 border border-ruby-800' : 'bg-slate-900 text-slate-400 border border-slate-800 hover:text-slate-200'
+          }">${t}</button>
+        `).join('');
+        
+        const rows = db[activeT] || [];
+        if (rows.length === 0) {
+          tableData.innerHTML = `<span class="text-slate-500 italic">Table "${activeT}" is empty.</span>`;
+          return;
+        }
+        
+        const headers = Object.keys(rows[0]);
+        tableData.innerHTML = `
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="border-b border-slate-800 text-slate-400">
+                ${headers.map(h => `<th class="py-1 pr-2 uppercase text-[9px] font-bold">${h}</th>`).join('')}
+              </tr>
+            </thead>
+            <tbody>
+              ${rows.map(r => `
+                <tr class="border-b border-slate-800/40 text-slate-300">
+                  ${headers.map(h => `<td class="py-1 pr-2">${r[h] !== null ? r[h] : 'nil'}</td>`).join('')}
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+      } catch (e) {
+        tableData.innerHTML = `<span class="text-rose-500 font-mono text-[10px]">Error loading DB: ${e.message}</span>`;
+      }
+    }
+
+    window.switchDbTable = (tName) => {
+      window.currentDbTable = tName;
+      renderDatabaseInspector();
+    };
+
+    // TAB MANAGEMENT
+    const tabEditor = document.getElementById('tab-editor-btn');
+    const tabIrb = document.getElementById('tab-irb-btn');
+    const tabRails = document.getElementById('tab-rails-btn');
+    const paneEditor = document.getElementById('pane-script-editor');
+    const paneIrb = document.getElementById('pane-live-irb');
+    const paneRails = document.getElementById('pane-rails-simulator');
+
+    function switchTab(tab) {
+      paneEditor.classList.add('hidden');
+      paneIrb.classList.add('hidden');
+      paneRails.classList.add('hidden');
+      
+      tabEditor.className = "px-3 py-1 rounded-t-md text-slate-400 hover:text-slate-200 transition flex items-center gap-1.5";
+      tabIrb.className = "px-3 py-1 rounded-t-md text-slate-400 hover:text-slate-200 transition flex items-center gap-1.5";
+      tabRails.className = "px-3 py-1 rounded-t-md text-slate-400 hover:text-slate-200 transition flex items-center gap-1.5";
+
+      if (tab === 'editor') {
+        paneEditor.classList.remove('hidden');
+        tabEditor.className = "px-3 py-1 rounded-t-md bg-slate-900 text-ruby-400 border-t-2 border-ruby-500 font-semibold flex items-center gap-1.5";
+      } else if (tab === 'irb') {
+        paneIrb.classList.remove('hidden');
+        paneIrb.classList.add('flex');
+        tabIrb.className = "px-3 py-1 rounded-t-md bg-slate-900 text-ruby-400 border-t-2 border-ruby-500 font-semibold flex items-center gap-1.5";
+        const scr = document.getElementById('irb-screen');
+        scr.scrollTop = scr.scrollHeight;
+      } else if (tab === 'rails') {
+        paneRails.classList.remove('hidden');
+        paneRails.classList.add('flex');
+        tabRails.className = "px-3 py-1 rounded-t-md bg-slate-900 text-ruby-400 border-t-2 border-ruby-500 font-semibold flex items-center gap-1.5";
+      }
+    }
+
+    tabEditor.onclick = () => switchTab('editor');
+    tabIrb.onclick = () => switchTab('irb');
+    tabRails.onclick = () => switchTab('rails');
+
     // BUTTON EVENT HANDLERS
     document.getElementById('run-script-btn').onclick = () => runCode(false);
     document.getElementById('check-step-btn').onclick = () => runCode(true);
+    document.getElementById('address-go-btn').onclick = dispatchRailsMockRequest;
 
-    // Tab Switcher
-    const tabEditor = document.getElementById('tab-editor-btn');
-    const tabIrb = document.getElementById('tab-irb-btn');
-    const paneEditor = document.getElementById('pane-script-editor');
-    const paneIrb = document.getElementById('pane-live-irb');
-
-    tabEditor.onclick = () => {
-      paneEditor.classList.remove('hidden');
-      paneEditor.classList.add('flex');
-      paneIrb.classList.remove('flex');
-      paneIrb.classList.add('hidden');
-      
-      tabEditor.className = "px-3 py-1 rounded-t-md bg-slate-900 text-ruby-400 border-t-2 border-ruby-500 font-semibold flex items-center gap-1.5";
-      tabIrb.className = "px-3 py-1 rounded-t-md text-slate-400 hover:text-slate-200 transition flex items-center gap-1.5";
-    };
-
-    tabIrb.onclick = () => {
-      paneIrb.classList.remove('hidden');
-      paneIrb.classList.add('flex');
-      paneEditor.classList.remove('flex');
-      paneEditor.classList.add('hidden');
-      
-      tabIrb.className = "px-3 py-1 rounded-t-md bg-slate-900 text-ruby-400 border-t-2 border-ruby-500 font-semibold flex items-center gap-1.5";
-      tabEditor.className = "px-3 py-1 rounded-t-md text-slate-400 hover:text-slate-200 transition flex items-center gap-1.5";
-      
-      // Scroll history log
-      const screen = document.getElementById('irb-screen');
-      screen.scrollTop = screen.scrollHeight;
-    };
-
-    // Hint & Solution Buttons
-    const hintPanel = document.getElementById('hint-panel');
-    const solPanel = document.getElementById('solution-panel');
-
-    document.getElementById('toggle-hint-btn').onclick = () => {
-      hintPanel.classList.toggle('hidden');
-      solPanel.classList.add('hidden');
-    };
-
-    document.getElementById('toggle-solution-btn').onclick = () => {
-      solPanel.classList.toggle('hidden');
-      hintPanel.classList.add('hidden');
-    };
-
-    document.getElementById('copy-solution-btn').onclick = () => {
-      const details = getExerciseByStep(currentStep);
-      if (details) {
-        codeEditor.value = details.exercise.solution;
-        editorCodes[currentStep] = codeEditor.value;
-        localStorage.setItem('fcc_ruby_editor_codes', JSON.stringify(editorCodes));
-        updateLineNumbers();
-      }
-    };
-
-    // Navigation Prev / Next
     document.getElementById('prev-step-btn').onclick = () => {
       if (currentStep > 1) loadStep(currentStep - 1);
     };
 
     document.getElementById('next-step-btn').onclick = () => {
-      if (currentStep < 50) loadStep(currentStep + 1);
+      if (currentStep < 168) loadStep(currentStep + 1);
     };
 
-    // Drawer toggles
-    const drawer = document.getElementById('curriculum-drawer');
-    document.getElementById('toggle-curriculum-btn').onclick = () => {
-      drawer.classList.toggle('-translate-x-full');
-    };
-    document.getElementById('close-curriculum-btn').onclick = () => {
-      drawer.classList.add('-translate-x-full');
-    };
-
-    // Clear Terminal & IRB logs
-    document.getElementById('clear-term-btn').onclick = () => {
-      document.getElementById('terminal-output').innerText = 'Terminal cleared. Click \'Run & Submit\' to execute tests.';
-    };
-
-    document.getElementById('clear-irb-logs-btn').onclick = () => {
-      document.getElementById('irb-history-log').innerHTML = '';
-      cmdCount = 1;
-      document.getElementById('irb-prompt-label').innerText = `irb(main):001>`;
+    // Reset Code Trigger
+    document.getElementById('reset-editor-code-btn').onclick = () => {
+      const details = getExerciseByStep(currentStep);
+      if (details) {
+        if (currentStep >= 66) {
+          editorCodes[currentStep] = JSON.parse(JSON.stringify(details.exercise.initialCode));
+          codeEditor.value = editorCodes[currentStep][currentActiveFile];
+        } else {
+          codeEditor.value = details.exercise.initialCode;
+          delete editorCodes[currentStep];
+        }
+        localStorage.setItem('fcc_ruby_editor_codes', JSON.stringify(editorCodes));
+        updateLineNumbers();
+      }
     };
 
-    // Modals Handlers
-    document.getElementById('view-cert-btn').onclick = () => {
-      document.getElementById('cert-modal').classList.remove('hidden');
-      document.getElementById('cert-modal').classList.add('flex');
-      document.getElementById('cert-date').innerText = new Date().toLocaleDateString();
-    };
-
-    document.getElementById('close-cert-btn').onclick = () => {
-      document.getElementById('cert-modal').classList.add('hidden');
-      document.getElementById('cert-modal').classList.remove('flex');
-    };
-
-    document.getElementById('open-reset-modal-btn').onclick = () => {
-      document.getElementById('reset-modal').classList.remove('hidden');
-      document.getElementById('reset-modal').classList.add('flex');
-    };
-
-    document.getElementById('cancel-reset-btn').onclick = () => {
-      document.getElementById('reset-modal').classList.add('hidden');
-      document.getElementById('reset-modal').classList.remove('flex');
-    };
-
+    // Reset progress
     document.getElementById('confirm-reset-btn').onclick = () => {
       localStorage.clear();
       completedSteps.clear();
       editorCodes = {};
       quizAnswers = {};
       currentStep = 1;
-      
       document.getElementById('reset-modal').classList.add('hidden');
       document.getElementById('reset-modal').classList.remove('flex');
-      
       loadStep(1);
     };
 
-    document.getElementById('reset-editor-code-btn').onclick = () => {
-      const details = getExerciseByStep(currentStep);
-      if (details) {
-        codeEditor.value = details.exercise.initialCode;
-        delete editorCodes[currentStep];
-        localStorage.setItem('fcc_ruby_editor_codes', JSON.stringify(editorCodes));
-        updateLineNumbers();
-      }
-    };
-
-    // IRB Input Handler
+    // IRB CLI Trigger
     const irbInput = document.getElementById('irb-input-field');
     irbInput.onkeydown = (e) => {
-      if (e.key === 'Enter') {
-        sendIrbCommand();
-      }
+      if (e.key === 'Enter') sendIrbCommand();
     };
     document.getElementById('irb-send-btn').onclick = sendIrbCommand;
 
@@ -1788,7 +1666,7 @@
       let promptNum = String(cmdCount).padStart(3, '0');
       
       const cmdLine = document.createElement('div');
-      cmdLine.className = 'text-slate-300';
+      cmdLine.className = 'text-slate-300 font-mono';
       cmdLine.innerText = `irb(main):${promptNum}:0> ${code}`;
       historyLog.appendChild(cmdLine);
       
@@ -1819,18 +1697,156 @@
       screen.scrollTop = screen.scrollHeight;
     }
 
-    // INIT
-    window.onload = () => {
-      loadStep(currentStep);
+    // Modal click triggers
+    document.getElementById('open-reset-modal-btn').onclick = () => {
+      document.getElementById('reset-modal').classList.remove('hidden');
+      document.getElementById('reset-modal').classList.add('flex');
+    };
+    document.getElementById('cancel-reset-btn').onclick = () => {
+      document.getElementById('reset-modal').classList.add('hidden');
+      document.getElementById('reset-modal').classList.remove('flex');
+    };
+    document.getElementById('close-cert-btn').onclick = () => {
+      document.getElementById('cert-modal').classList.add('hidden');
+      document.getElementById('cert-modal').classList.remove('flex');
+    };
+    document.getElementById('view-cert-btn').onclick = () => {
+      document.getElementById('cert-modal').classList.remove('hidden');
+      document.getElementById('cert-modal').classList.add('flex');
+      document.getElementById('cert-date').innerText = new Date().toLocaleDateString();
     };
 
-    // Handle Ctrl + Enter in editor
+    // Toggle menu curriculum list drawer
+    const drawer = document.getElementById('curriculum-drawer');
+    document.getElementById('toggle-curriculum-btn').onclick = () => {
+      drawer.classList.toggle('-translate-x-full');
+    };
+    document.getElementById('close-curriculum-btn').onclick = () => {
+      drawer.classList.add('-translate-x-full');
+    };
+    document.getElementById('clear-term-btn').onclick = () => {
+      document.getElementById('terminal-output').innerText = 'Terminal cleared.';
+    };
+    document.getElementById('clear-irb-logs-btn').onclick = () => {
+      document.getElementById('irb-history-log').innerHTML = '';
+      cmdCount = 1;
+      document.getElementById('irb-prompt-label').innerText = `irb(main):001`;
+    };
+
     codeEditor.addEventListener('keydown', (e) => {
       if (e.ctrlKey && e.key === 'Enter') {
         e.preventDefault();
         runCode(true); // Submit
       }
     });
+
+    // SUBTAB SWITCHING & SIMULATED SYSTEMS SYNC
+    const subtabView = document.getElementById('subtab-view-btn');
+    const subtabMail = document.getElementById('subtab-mail-btn');
+    const subtabJobs = document.getElementById('subtab-jobs-btn');
+    const screenView = document.getElementById('web-render-screen');
+    const screenMail = document.getElementById('mailbox-screen');
+    const screenJobs = document.getElementById('jobs-screen');
+
+    function switchSubtab(tab) {
+      screenView.classList.add('hidden');
+      screenMail.classList.add('hidden');
+      screenJobs.classList.add('hidden');
+      
+      subtabView.className = "px-2 py-0.5 rounded text-[10px] text-slate-400 hover:text-slate-200 transition";
+      subtabMail.className = "px-2 py-0.5 rounded text-[10px] text-slate-400 hover:text-slate-200 transition flex items-center gap-1";
+      subtabJobs.className = "px-2 py-0.5 rounded text-[10px] text-slate-400 hover:text-slate-200 transition";
+
+      if (tab === 'view') {
+        screenView.classList.remove('hidden');
+        subtabView.className = "px-2 py-0.5 rounded text-[10px] bg-slate-800 text-ruby-400 font-semibold border border-slate-700";
+      } else if (tab === 'mail') {
+        screenMail.classList.remove('hidden');
+        subtabMail.className = "px-2 py-0.5 rounded text-[10px] bg-slate-800 text-ruby-400 font-semibold border border-slate-700 flex items-center gap-1";
+      } else if (tab === 'jobs') {
+        screenJobs.classList.remove('hidden');
+        subtabJobs.className = "px-2 py-0.5 rounded text-[10px] bg-slate-800 text-ruby-400 font-semibold border border-slate-700";
+      }
+    }
+
+    subtabView.onclick = () => switchSubtab('view');
+    subtabMail.onclick = () => switchSubtab('mail');
+    subtabJobs.onclick = () => switchSubtab('jobs');
+
+    function syncSimulatedSystems() {
+      try {
+        const sentEmailsJson = window.rubyVM.eval("JSON.generate($sent_emails || [])").toString();
+        const sentEmails = JSON.parse(sentEmailsJson);
+        renderMailbox(sentEmails);
+
+        const bgJobsJson = window.rubyVM.eval("JSON.generate($background_jobs || [])").toString();
+        const bgJobs = JSON.parse(bgJobsJson);
+        renderJobs(bgJobs);
+      } catch (e) {
+        console.error("Error syncing simulated systems: ", e);
+      }
+    }
+
+    function renderMailbox(emails) {
+      const mailbox = document.getElementById('mailbox-screen');
+      const badge = document.getElementById('mail-badge');
+      if (emails.length > 0) {
+        badge.innerText = emails.length;
+        badge.classList.remove('hidden');
+      } else {
+        badge.classList.add('hidden');
+      }
+      
+      if (emails.length === 0) {
+        mailbox.innerHTML = '<div class="text-slate-500 italic text-center py-8">Inbox is empty. Trigger email delivery inside your controllers or script.</div>';
+        return;
+      }
+      
+      mailbox.innerHTML = emails.map((mail, idx) => `
+        <div class="border border-slate-800 rounded-lg p-3 bg-slate-900/60 mb-2 font-sans">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-1.5 mb-2 text-[10px] text-slate-400 font-mono">
+            <div><strong>From:</strong> ${mail.from} ➔ <strong>To:</strong> ${mail.to}</div>
+            <div class="text-amber-400">Subject: ${mail.subject}</div>
+          </div>
+          <div class="text-xs text-slate-300 bg-slate-950 p-2.5 rounded border border-slate-800/60 whitespace-pre-wrap">${mail.body}</div>
+        </div>
+      `).join('');
+    }
+
+    function renderJobs(jobs) {
+      const jobsScreen = document.getElementById('jobs-screen');
+      if (jobs.length === 0) {
+        jobsScreen.innerHTML = '<div class="text-slate-500 italic text-center py-8">No background jobs enqueued. Run ActiveJob perform_later.</div>';
+        return;
+      }
+      
+      jobsScreen.innerHTML = `
+        <div class="space-y-2 font-mono text-xs">
+          <div class="text-emerald-400 border-b border-slate-800 pb-1.5 font-bold flex items-center gap-1.5"><i class="fa-solid fa-microchip"></i> ActiveJob Queue Dashboard</div>
+          ${jobs.map((job, idx) => {
+            return `
+              <div class="p-2 border border-slate-800 rounded bg-slate-950/80 flex items-center justify-between">
+                <div>
+                  <span class="text-ruby-400 font-bold">${job.job}</span>
+                  <span class="text-[10px] text-slate-500">(${job.args.join(', ')})</span>
+                </div>
+                <span class="px-1.5 py-0.5 rounded text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-800/40 font-bold uppercase">Completed</span>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
+    }
+
+    // Attach globals for inline DOM click events
+    window.loadStep = loadStep;
+    window.runCode = runCode;
+    window.switchRailsFile = switchRailsFile;
+
+    // BOOT
+    window.onload = () => {
+      loadRubyWasm();
+    };
 
   </script>
 </body>

@@ -1,0 +1,15 @@
+# Roadmaps
+Ruby - ruby.pdf
+Ruby on Rails - ruby-on-rails.pdf
+
+# Course Planning
+curriculum_plan.md
+
+# Dependencies
+node_modules/
+package-lock.json
+
+# Local Environment
+.DS_Store
+.env
+.gemini/
