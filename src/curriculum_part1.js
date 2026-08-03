@@ -1153,6 +1153,7 @@ end`,
           rationale: "<code>attr_accessor</code> creates both getter (read) and setter (write) instance variable helpers automatically."
         }
       }
+    ]
   },
   {
     id: 11,
