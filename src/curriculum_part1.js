@@ -113,7 +113,7 @@ const lessonsDataPart1 = [
         title: "6. String Interpolation",
         prompt: "Given <code>name = 'Alice'</code>, output <code>'Hello, Alice!'</code> using string interpolation.",
         initialCode: `name = "Alice"\n# Write puts statement with interpolation:\n`,
-        hint: 'puts "Hello, #{name}!"',
+        hint: 'name = "Alice"\nputs "Hello, #{name}!"',
         solution: 'name = "Alice"\nputs "Hello, #{name}!"',
         validate: (out) => out.includes("Hello, Alice!"),
         quiz: {
@@ -129,7 +129,7 @@ const lessonsDataPart1 = [
         title: "7. Uppercase Transformation",
         prompt: "Given <code>framework = 'rails'</code>, print <code>'I USE RAILS'</code> using <code>.upcase</code> inside interpolation.",
         initialCode: `framework = "rails"\n`,
-        hint: 'puts "I USE #{framework.upcase}"',
+        hint: 'framework = "rails"\nputs "I USE #{framework.upcase}"',
         solution: 'framework = "rails"\nputs "I USE #{framework.upcase}"',
         validate: (out) => out.includes("I USE RAILS"),
         quiz: {
@@ -145,7 +145,7 @@ const lessonsDataPart1 = [
         title: "8. Reversing and Length",
         prompt: "Given <code>word = 'Developer'</code>, output its reverse and length separated by space (e.g. <code>repoleveD 9</code>).",
         initialCode: `word = "Developer"\n`,
-        hint: 'puts "#{word.reverse} #{word.length}"',
+        hint: 'word = "Developer"\nputs "#{word.reverse} #{word.length}"',
         solution: 'word = "Developer"\nputs "#{word.reverse} #{word.length}"',
         validate: (out) => out.includes("repoleveD 9"),
         quiz: {

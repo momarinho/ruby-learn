@@ -489,6 +489,98 @@
     </div>
   </div>
 
+    <!-- PORTFOLIO EXPORT MODAL -->
+  <div id="portfolio-modal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 hidden items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+      <!-- Modal Header -->
+      <div class="p-5 border-b border-slate-800 flex items-center justify-between bg-slate-950/60">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-ruby-950 border border-ruby-800/60 flex items-center justify-center text-ruby-400 text-lg">
+            <i class="fa-solid fa-folder-tree"></i>
+          </div>
+          <div>
+            <h2 id="portfolio-modal-title" class="text-base font-bold text-slate-100">Project Portfolio Export</h2>
+            <p class="text-xs text-slate-400">Export your application codebase, setup guide, and GitHub README blueprint.</p>
+          </div>
+        </div>
+        <button id="close-portfolio-btn" class="text-slate-400 hover:text-white p-2 rounded-lg transition">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <!-- Modal Tabs Bar -->
+      <div class="flex items-center gap-2 px-5 pt-3 bg-slate-950/40 border-b border-slate-800">
+        <button id="pf-tab-readme-btn" class="px-3 py-2 text-xs font-semibold rounded-t-lg bg-slate-800 text-ruby-400 border-t-2 border-ruby-500 flex items-center gap-2 transition">
+          <i class="fa-brands fa-github text-sm"></i>
+          <span>GitHub README.md</span>
+        </button>
+        <button id="pf-tab-setup-btn" class="px-3 py-2 text-xs font-semibold rounded-t-lg text-slate-400 hover:text-slate-200 flex items-center gap-2 transition">
+          <i class="fa-solid fa-terminal text-sm"></i>
+          <span>Local Setup Guide</span>
+        </button>
+        <button id="pf-tab-code-btn" class="px-3 py-2 text-xs font-semibold rounded-t-lg text-slate-400 hover:text-slate-200 flex items-center gap-2 transition">
+          <i class="fa-solid fa-code text-sm"></i>
+          <span>Unified Codebase</span>
+        </button>
+      </div>
+
+      <!-- Modal Body (Scrollable) -->
+      <div class="flex-1 overflow-y-auto p-6 space-y-6">
+        <!-- TAB 1: README -->
+        <div id="pf-pane-readme" class="space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="text-xs text-slate-400 font-mono">Use this Markdown template when creating your repository on GitHub:</span>
+            <button id="copy-readme-btn" class="px-3 py-1.5 bg-ruby-600 hover:bg-ruby-500 text-white rounded-lg text-xs font-semibold transition flex items-center gap-1.5">
+              <i class="fa-regular fa-copy"></i> Copy README.md
+            </button>
+          </div>
+          <pre id="portfolio-readme-code" class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-slate-200 font-mono text-xs overflow-x-auto leading-relaxed max-h-96"></pre>
+        </div>
+
+        <!-- TAB 2: SETUP GUIDE -->
+        <div id="pf-pane-setup" class="hidden space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="text-xs text-slate-400 font-mono">Run these commands in your local computer terminal:</span>
+            <button id="download-setup-btn" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-semibold transition flex items-center gap-1.5">
+              <i class="fa-solid fa-download"></i> Download setup.sh Script
+            </button>
+          </div>
+          <div class="p-4 bg-slate-950 rounded-xl border border-slate-800 space-y-3 font-mono text-xs">
+            <div class="text-ruby-400 font-bold"># Step 1: Create a new Rails application locally</div>
+            <pre class="bg-slate-900 p-2.5 rounded text-emerald-400">rails new my_rails_app -d sqlite3&#10;cd my_rails_app</pre>
+            
+            <div class="text-ruby-400 font-bold"># Step 2: Download and run the automated file setup script</div>
+            <pre class="bg-slate-900 p-2.5 rounded text-emerald-400">chmod +x setup.sh&#10;./setup.sh</pre>
+            
+            <div class="text-ruby-400 font-bold"># Step 3: Run migrations & start server</div>
+            <pre class="bg-slate-900 p-2.5 rounded text-emerald-400">bin/rails db:prepare&#10;bin/rails server</pre>
+          </div>
+        </div>
+
+        <!-- TAB 3: UNIFIED CODEBASE -->
+        <div id="pf-pane-code" class="hidden space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="text-xs text-slate-400 font-mono">All combined files from stages 1 to N:</span>
+            <button id="copy-all-code-btn" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg text-xs font-semibold transition flex items-center gap-1.5">
+              <i class="fa-regular fa-copy"></i> Copy All Files Concatenated
+            </button>
+          </div>
+          <div id="portfolio-files-tree" class="space-y-4">
+            <!-- Dynamically populated files -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="p-4 border-t border-slate-800 bg-slate-950/60 flex items-center justify-between">
+        <span class="text-xs text-slate-400">Tip: Push your project to GitHub and share your link in your resume portfolio!</span>
+        <button id="close-portfolio-footer-btn" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-semibold transition">
+          Close Window
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- PROJECTS VIEW CONTAINER -->
   <div id="projects-view" class="flex-1 overflow-y-auto bg-slate-950 p-6 space-y-6 hidden">
     <div class="max-w-6xl mx-auto space-y-6">
@@ -1135,6 +1227,10 @@
       return null;
     }
 
+    function safeBtoa(str) {
+      return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, (match, p1) => String.fromCharCode('0x' + p1)));
+    }
+
     function isMultiFileStep(stepNum) {
       const details = getExerciseByStep(stepNum);
       return !!(details && details.exercise && typeof details.exercise.initialCode === 'object');
@@ -1195,9 +1291,14 @@
           const actionText = percent === 100 ? 'Start Again' : progressCount > 0 ? 'Resume Project' : 'Start Project';
           const icon = percent === 100 ? 'fa-rotate-right' : progressCount > 0 ? 'fa-play' : 'fa-folder-open';
           buttonHtml = `
-            <button onclick="switchRailsProject('${p.id}')" class="w-full py-2 bg-ruby-600 hover:bg-ruby-500 text-white rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition">
-              <i class="fa-solid ${icon}"></i> ${actionText}
-            </button>
+            <div class="space-y-2">
+              <button onclick="switchRailsProject('${p.id}')" class="w-full py-2 bg-ruby-600 hover:bg-ruby-500 text-white rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition">
+                <i class="fa-solid ${icon}"></i> ${actionText}
+              </button>
+              <button onclick="openPortfolioModal('${p.id}')" class="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700/80 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition">
+                <i class="fa-solid fa-folder-tree text-ruby-400"></i> Export Portfolio Code
+              </button>
+            </div>
           `;
         }
         
@@ -1235,6 +1336,7 @@
       });
     }
 
+    window.switchRailsProjectStage = (projectId, stageIndex) => loadProjectStage(projectId, stageIndex);
     window.switchRailsProject = (projectId) => {
       const p = projectsData.find(p => p.id === projectId);
       const progress = projectProgress[projectId] || 0;
@@ -1283,6 +1385,8 @@
       document.getElementById('prev-step-btn').disabled = (stageIndex === 0);
       document.getElementById('next-step-btn').disabled = (stageIndex === project.stages.length - 1);
       
+      renderQuiz(stage);
+      renderCurriculumTree();
       updateLineNumbers();
       switchTab('editor');
       switchView('curriculum');
@@ -1329,8 +1433,35 @@
       const treeContainer = document.getElementById('curriculum-tree');
       treeContainer.innerHTML = '';
       
+      if (currentProjectId !== null) {
+        const project = projectsData.find(p => p.id === currentProjectId);
+        if (project) {
+          const banner = document.createElement('div');
+          banner.className = 'p-3 bg-ruby-950/60 border border-ruby-800/60 rounded-xl mb-4 font-sans';
+          banner.innerHTML = `
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-ruby-900 text-ruby-200 font-bold">Active Project</span>
+              <button onclick="switchView('projects')" class="text-[10px] text-slate-400 hover:text-slate-200 underline">All Projects</button>
+            </div>
+            <div class="text-xs font-bold text-slate-100 mt-2">${project.title}</div>
+            <div class="text-[11px] text-ruby-300 mt-0.5">Stage ${currentProjectStageIndex + 1} of ${project.stages.length}</div>
+            <div class="mt-2.5 space-y-1">
+              ${project.stages.map((s, idx) => `
+                <button onclick="switchRailsProjectStage('${project.id}', ${idx})" class="w-full text-left px-2.5 py-1.5 rounded text-[11px] flex items-center justify-between transition ${
+                  idx === currentProjectStageIndex ? 'bg-ruby-800/50 text-ruby-200 font-semibold border border-ruby-700/50' : 'text-slate-400 hover:bg-slate-800/40'
+                }">
+                  <span class="truncate pr-1">${s.title}</span>
+                  <i class="fa-solid ${idx === currentProjectStageIndex ? 'fa-play text-ruby-400 text-[10px]' : 'fa-circle text-[5px] text-slate-600'}"></i>
+                </button>
+              `).join('')}
+            </div>
+          `;
+          treeContainer.appendChild(banner);
+        }
+      }
+      
       lessonsData.forEach(lesson => {
-        const hasCurrentStep = lesson.exercises.some(e => e.stepNumber === currentStep);
+        const hasCurrentStep = currentProjectId === null && lesson.exercises.some(e => e.stepNumber === currentStep);
         const lessonDiv = document.createElement('div');
         lessonDiv.className = 'border border-slate-800 rounded-lg overflow-hidden bg-slate-950/40 mb-2';
         
@@ -1351,7 +1482,7 @@
         exercisesContainer.id = `exercises-list-${lesson.id}`;
         
         lesson.exercises.forEach(ex => {
-          const isCurrent = ex.stepNumber === currentStep;
+          const isCurrent = currentProjectId === null && ex.stepNumber === currentStep;
           const isCompleted = completedSteps.has(ex.stepNumber);
           
           const itemBtn = document.createElement('button');
@@ -1582,7 +1713,7 @@
           
           btn.onclick = () => {
             if (idx === quiz.correct) {
-              quizAnswers[exercise.stepNumber] = true;
+              quizAnswers[quizKey] = true;
               localStorage.setItem('fcc_ruby_quiz_answers', JSON.stringify(quizAnswers));
               renderQuiz(exercise);
               appendTerminalOutput(`\n[Quiz Success] Correct answer! ${quiz.rationale}`, 'text-emerald-400');
@@ -1640,13 +1771,13 @@
 
       if (!isMulti) {
         // Evaluate single file Ruby script
-        const code = codeEditor.value;
+        const rawCode = codeEditor.value.replace(/\r\n/g, '\n').replace(/\u00a0/g, ' ');
+        const b64Code = safeBtoa(rawCode);
         const runStr = `
           $stdout = StringIO.new
           $stderr = StringIO.new
-          $script_binding = binding
           begin
-            $script_binding.eval(${JSON.stringify(code)})
+            eval("${b64Code}".unpack1('m'), nil, "main.rb")
           rescue Exception => e
             puts "Runtime Error: #{e.class} - #{e.message}"
           end
@@ -1667,7 +1798,8 @@
         for (let path in files) {
           if (path.endsWith('.erb')) {
             const tName = path.replace('app/views/', '').replace('.html.erb', '');
-            window.rubyVM.eval(`$templates['${tName}'] = ${JSON.stringify(files[path])}`);
+            const b64Erb = safeBtoa(files[path]);
+            window.rubyVM.eval(`$templates['${tName}'] = "${b64Erb}".unpack1('m')`);
           }
         }
         
@@ -1678,12 +1810,13 @@
             rubyConcat += `\n# --- FILE: ${path} ---\n` + files[path] + '\n';
           }
         }
+        const b64Concat = safeBtoa(rubyConcat);
         
         const runStr = `
           $stdout = StringIO.new
           $stderr = StringIO.new
           begin
-            eval(${JSON.stringify(rubyConcat)})
+            eval("${b64Concat}".unpack1('m'), nil, "rails_app.rb")
           rescue Exception => e
             puts "Rails Compiler Error: #{e.class} - #{e.message}"
           end
@@ -1795,11 +1928,12 @@
 
     // STATEFUL IRB RUNNER
     function runIrbCode(rubyCode) {
+      const b64Code = safeBtoa(rubyCode);
       const runStr = `
         $stdout = StringIO.new
         $irb_binding ||= binding
         begin
-          $irb_val = $irb_binding.eval(${JSON.stringify(rubyCode)})
+          $irb_val = $irb_binding.eval("${b64Code}".unpack1('m'))
         rescue Exception => e
           puts "Error: #{e.class} - #{e.message}"
           $irb_val = nil
@@ -1939,6 +2073,43 @@
     tabRails.onclick = () => switchTab('rails');
 
     // BUTTON EVENT HANDLERS
+    document.getElementById('toggle-hint-btn').onclick = () => {
+      document.getElementById('hint-panel').classList.toggle('hidden');
+    };
+
+    document.getElementById('toggle-solution-btn').onclick = () => {
+      document.getElementById('solution-panel').classList.toggle('hidden');
+    };
+
+    document.getElementById('copy-solution-btn').onclick = () => {
+      const solutionText = document.getElementById('solution-code').innerText;
+      if (!solutionText) return;
+      
+      if (currentProjectId !== null) {
+        const key = `project_${currentProjectId}_stage_${currentProjectStageIndex}`;
+        if (!editorCodes[key]) editorCodes[key] = {};
+        editorCodes[key][currentActiveFile] = solutionText;
+      } else if (isMultiFileStep(currentStep)) {
+        if (!editorCodes[currentStep]) editorCodes[currentStep] = {};
+        editorCodes[currentStep][currentActiveFile] = solutionText;
+      } else {
+        editorCodes[currentStep] = solutionText;
+      }
+      
+      codeEditor.value = solutionText;
+      localStorage.setItem('fcc_ruby_editor_codes', JSON.stringify(editorCodes));
+      updateLineNumbers();
+      
+      const copyBtn = document.getElementById('copy-solution-btn');
+      const originalText = copyBtn.innerText;
+      copyBtn.innerText = "Copied!";
+      copyBtn.classList.add('bg-emerald-700', 'text-white');
+      setTimeout(() => {
+        copyBtn.innerText = originalText;
+        copyBtn.classList.remove('bg-emerald-700', 'text-white');
+      }, 1500);
+    };
+
     document.getElementById('run-script-btn').onclick = () => runCode(false);
     document.getElementById('check-step-btn').onclick = () => runCode(true);
     document.getElementById('address-go-btn').onclick = dispatchRailsMockRequest;
@@ -2201,6 +2372,175 @@
 
     // Attach globals for inline DOM click events
     window.loadStep = loadStep;
+    
+    // PORTFOLIO EXPORTER & MODAL HELPERS
+    function escapeHtml(str) {
+      return (str || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    function generateGithubReadme(project) {
+      const filePaths = [];
+      project.stages.forEach(s => {
+        Object.keys(s.initialCode || {}).forEach(f => {
+          if (!filePaths.includes(f)) filePaths.push(f);
+        });
+      });
+
+      return `# 🚀 ${project.title}\n\n> Built as a Capstone Portfolio Project during the Ruby & Rails Full-Stack Course.\n\n## 📖 Description\n${project.description}\n\n## ⚡ Tech Stack\n- **Language:** Ruby 3.x\n- **Framework:** Ruby on Rails 7\n- **Database:** SQLite3 / PostgreSQL\n- **Testing:** RSpec & WASM WebAssembly Engine\n\n## 🎯 Application Features & Architecture\n${project.stages.map((s, i) => `### Stage ${i + 1}: ${s.title}\n- ${s.prompt.replace(/<[^>]*>/g, '')}`).join('\n\n')}\n\n## 📁 Key Project Files\n${filePaths.map(f => `- \\`${f}\\``).join('\n')}\n\n## 💻 Local Machine Installation Guide\n\n1. **Clone your repository:**\n   \`\`\`bash\n   git clone https://github.com/your-username/${project.id}-rails-app.git\n   cd ${project.id}-rails-app\n   \`\`\`\n\n2. **Install dependencies & prepare database:**\n   \`\`\`bash\n   bundle install\n   bin/rails db:prepare\n   \`\`\`\n\n3. **Start local web server:**\n   \`\`\`bash\n   bin/rails server\n   \`\`\`\n   Open \\`http://localhost:3000\\` in your web browser.\n\n---\n*Created by Ruby Full-Stack Developer Student.*\n`;
+    }
+
+    function generateSetupScript(project) {
+      const mergedFiles = {};
+      project.stages.forEach(stage => {
+        for (let path in stage.initialCode) {
+          mergedFiles[path] = stage.solution || stage.initialCode[path];
+        }
+      });
+
+      let script = `#!/usr/bin/env bash\n# Automated setup script for: ${project.title}\n\necho "Creating Rails directory structure and files..."\n\n`;
+      const dirs = new Set();
+      for (let path in mergedFiles) {
+        const parts = path.split('/');
+        if (parts.length > 1) {
+          dirs.add(parts.slice(0, parts.length - 1).join('/'));
+        }
+      }
+
+      dirs.forEach(d => {
+        script += `mkdir -p "${d}"\n`;
+      });
+      script += `\n`;
+
+      for (let path in mergedFiles) {
+        const content = mergedFiles[path];
+        script += `cat << 'EOF' > "${path}"\n${content}\nEOF\n\n`;
+      }
+
+      script += `echo "Project files generated successfully!"\n`;
+      return script;
+    }
+
+    window.openPortfolioModal = (projectId) => {
+      const project = projectsData.find(p => p.id === projectId);
+      if (!project) return;
+
+      document.getElementById('portfolio-modal-title').innerText = `Portfolio Export: ${project.title}`;
+      document.getElementById('portfolio-readme-code').innerText = generateGithubReadme(project);
+
+      // Render unified files
+      const filesContainer = document.getElementById('portfolio-files-tree');
+      filesContainer.innerHTML = '';
+
+      const mergedFiles = {};
+      project.stages.forEach(stage => {
+        for (let path in stage.initialCode) {
+          mergedFiles[path] = stage.solution || stage.initialCode[path];
+        }
+      });
+
+      for (let path in mergedFiles) {
+        const fileDiv = document.createElement('div');
+        fileDiv.className = 'border border-slate-800 rounded-xl overflow-hidden bg-slate-950';
+        fileDiv.innerHTML = `
+          <div class="px-4 py-2 bg-slate-900 border-b border-slate-800 flex items-center justify-between">
+            <span class="text-xs font-mono font-bold text-ruby-400"><i class="fa-solid fa-file-code mr-2"></i>${path}</span>
+            <button onclick="navigator.clipboard.writeText(${JSON.stringify(mergedFiles[path])})" class="text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1 rounded border border-slate-700 transition">
+              <i class="fa-regular fa-copy"></i> Copy File
+            </button>
+          </div>
+          <pre class="p-3 text-[11px] font-mono text-emerald-400 overflow-x-auto max-h-60 leading-relaxed">${escapeHtml(mergedFiles[path])}</pre>
+        `;
+        filesContainer.appendChild(fileDiv);
+      }
+
+      // Setup download script action
+      document.getElementById('download-setup-btn').onclick = () => {
+        const scriptText = generateSetupScript(project);
+        const blob = new Blob([scriptText], { type: 'text/x-sh' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `setup_${project.id}.sh`;
+        a.click();
+        URL.revokeObjectURL(url);
+      };
+
+      // Setup Copy README action
+      document.getElementById('copy-readme-btn').onclick = () => {
+        const readme = generateGithubReadme(project);
+        navigator.clipboard.writeText(readme);
+        const btn = document.getElementById('copy-readme-btn');
+        btn.innerText = "Copied!";
+        btn.classList.add('bg-emerald-600');
+        setTimeout(() => {
+          btn.innerHTML = `<i class="fa-regular fa-copy"></i> Copy README.md`;
+          btn.classList.remove('bg-emerald-600');
+        }, 1500);
+      };
+
+      // Setup Copy All Code action
+      document.getElementById('copy-all-code-btn').onclick = () => {
+        let allText = "";
+        for (let path in mergedFiles) {
+          allText += `# --- FILE: ${path} ---\n${mergedFiles[path]}\n\n`;
+        }
+        navigator.clipboard.writeText(allText);
+        const btn = document.getElementById('copy-all-code-btn');
+        btn.innerText = "Copied All Files!";
+        btn.classList.add('bg-emerald-600', 'text-white');
+        setTimeout(() => {
+          btn.innerHTML = `<i class="fa-regular fa-copy"></i> Copy All Files Concatenated`;
+          btn.classList.remove('bg-emerald-600', 'text-white');
+        }, 1500);
+      };
+
+      const modal = document.getElementById('portfolio-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    };
+
+    // Modal Navigation Listener
+    const pfReadmeBtn = document.getElementById('pf-tab-readme-btn');
+    const pfSetupBtn = document.getElementById('pf-tab-setup-btn');
+    const pfCodeBtn = document.getElementById('pf-tab-code-btn');
+    const pfPaneReadme = document.getElementById('pf-pane-readme');
+    const pfPaneSetup = document.getElementById('pf-pane-setup');
+    const pfPaneCode = document.getElementById('pf-pane-code');
+
+    function switchPfTab(tab) {
+      pfPaneReadme.classList.add('hidden');
+      pfPaneSetup.classList.add('hidden');
+      pfPaneCode.classList.add('hidden');
+
+      pfReadmeBtn.className = "px-3 py-2 text-xs font-semibold rounded-t-lg text-slate-400 hover:text-slate-200 flex items-center gap-2 transition";
+      pfSetupBtn.className = "px-3 py-2 text-xs font-semibold rounded-t-lg text-slate-400 hover:text-slate-200 flex items-center gap-2 transition";
+      pfCodeBtn.className = "px-3 py-2 text-xs font-semibold rounded-t-lg text-slate-400 hover:text-slate-200 flex items-center gap-2 transition";
+
+      if (tab === 'readme') {
+        pfPaneReadme.classList.remove('hidden');
+        pfReadmeBtn.className = "px-3 py-2 text-xs font-semibold rounded-t-lg bg-slate-800 text-ruby-400 border-t-2 border-ruby-500 flex items-center gap-2 transition";
+      } else if (tab === 'setup') {
+        pfPaneSetup.classList.remove('hidden');
+        pfSetupBtn.className = "px-3 py-2 text-xs font-semibold rounded-t-lg bg-slate-800 text-ruby-400 border-t-2 border-ruby-500 flex items-center gap-2 transition";
+      } else if (tab === 'code') {
+        pfPaneCode.classList.remove('hidden');
+        pfCodeBtn.className = "px-3 py-2 text-xs font-semibold rounded-t-lg bg-slate-800 text-ruby-400 border-t-2 border-ruby-500 flex items-center gap-2 transition";
+      }
+    }
+
+    pfReadmeBtn.onclick = () => switchPfTab('readme');
+    pfSetupBtn.onclick = () => switchPfTab('setup');
+    pfCodeBtn.onclick = () => switchPfTab('code');
+
+    const closePf = () => {
+      const modal = document.getElementById('portfolio-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    };
+
+    document.getElementById('close-portfolio-btn').onclick = closePf;
+    document.getElementById('close-portfolio-footer-btn').onclick = closePf;
+
     window.runCode = runCode;
     window.switchRailsFile = switchRailsFile;
 
